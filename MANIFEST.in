@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include szamlazz_agent_connector *.css
+recursive-include szamlazz_agent_connector *.csv
+recursive-include szamlazz_agent_connector *.html
+recursive-include szamlazz_agent_connector *.ico
+recursive-include szamlazz_agent_connector *.js
+recursive-include szamlazz_agent_connector *.json
+recursive-include szamlazz_agent_connector *.md
+recursive-include szamlazz_agent_connector *.png
+recursive-include szamlazz_agent_connector *.py
+recursive-include szamlazz_agent_connector *.svg
+recursive-include szamlazz_agent_connector *.txt
+recursive-exclude szamlazz_agent_connector *.pyc
