@@ -97,6 +97,11 @@ app_license = "MIT"
 #	}
 # }
 
+doc_events = {
+	"Sales Invoice": {
+		"on_submit": "szamlazz_agent_connector.szamlazz_agent_connector.accounts.sales_invoice.events.on_submit"
+	}
+}
 # Scheduled Tasks
 # ---------------
 
