@@ -1,4 +1,4 @@
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.responses.szamla_agent_response import \
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.response.szamla_agent_response import \
     SzamlaAgentResponse
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent import \
     SzamlaAgent

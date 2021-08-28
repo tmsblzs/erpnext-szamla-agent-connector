@@ -1,7 +1,5 @@
 class SzamlaAgentRequest:
-    # Sikesességet jelző válaszkód
     HTTP_OK = 200
-
     CRLF = "\r\n"
 
     # Számla Agent XML séma alapértelmezett URL
@@ -67,7 +65,6 @@ class SzamlaAgentRequest:
     # Kérés engedélyezési módok
     REQUEST_AUTHORIZATION_BASIC_AUTH = 1
 
-    # @ var SzamlaAgent
     agent = ''
 
     # A Számla Agent kérés típusa
@@ -111,3 +108,13 @@ class SzamlaAgentRequest:
     # Az Agent kéréshez tartozó adatok CDATA - ként lesznek átadva
     # @ var boolean
     cData = True
+
+    def __init__(self, agent, request_type, entity):
+        self.agent = agent
+        self.type = request_type
+        self.entity = entity
+        self.cData = True
+
+    def send(self):
+        pass
+

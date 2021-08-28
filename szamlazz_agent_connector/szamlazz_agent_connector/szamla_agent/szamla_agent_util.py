@@ -23,7 +23,7 @@ class SzamlaAgentUtil:
     def get_xml_file_name(prefix, name, entity=None):
         if not name or entity is not None:
             name += '-' + entity.__class__.__name__
-        filename = f"{prefix}-{name.tolower()}-{SzamlaAgentUtil.get_date_time_with_milliseconds()}.xml"
+        filename = f"{prefix}-{name.lower()}-{SzamlaAgentUtil.get_date_time_with_milliseconds()}.xml"
         return SzamlaAgentUtil.get_abs_path(SzamlaAgent.XML_FILE_SAVE_PATH, filename)
 
     @staticmethod

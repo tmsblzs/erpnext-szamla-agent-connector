@@ -1,6 +1,10 @@
+import hashlib
 import logging
 
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.responses.szamla_agent_response import \
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
+    SzamlaAgentException
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.response.szamla_agent_response import \
     SzamlaAgentResponse
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import \
     SzamlaAgentRequest
@@ -18,19 +22,45 @@ class SzamlaAgent:
     XML_FILE_SAVE_PATH = './xmls'
     ATTACHMENTS_SAVE_PATH = './attachments'
 
-    logLevel = 'OFF'
+    logLevel = logging.NOTSET
     logEmail = ''
 
     callMethod = SzamlaAgentRequest.CALL_METHOD_AUTO
     certificationFileName = CERTIFICATION_FILENAME
     cookieFileName = COOKIE_FILENAME
 
-    setting = None
-    request = None
-    response = None
+    @property
+    def setting(self):
+        return self.__setting
+
+    @setting.setter
+    def setting(self, value):
+        if not isinstance(value, SzamlaAgentSetting):
+            raise TypeError("setting must be an SzamlaAgentSetting")
+        self.__setting = value
+
+    @property
+    def request(self):
+        return self.__request
+
+    @request.setter
+    def request(self, value):
+        if not isinstance(value, SzamlaAgentRequest):
+            raise TypeError("setting must be an SzamlaAgentRequest")
+        self.__request = value
+
+    @property
+    def response(self):
+        return self.__response
+
+    @response.setter
+    def response(self, value):
+        if not isinstance(value, SzamlaAgentResponse):
+            raise TypeError("setting must be an SzamlaAgentResponse")
+        self.__response = value
 
     # use as static variable
-    agents = []
+    agents = {}
 
     customHttpHeaders = []
     apiUrl = API_URL
@@ -42,18 +72,26 @@ class SzamlaAgent:
                  password,
                  api_key,
                  download_pdf=True,
-                 log_level='DEBUG',
+                 log_level=logging.DEBUG,
                  response_type=SzamlaAgentResponse.RESULT_AS_TEXT,
                  aggregator=""
                  ):
         self.setting = SzamlaAgentSetting(username, password, api_key, download_pdf,
                                           SzamlaAgentSetting.DOWNLOAD_COPIES_COUNT, response_type, aggregator)
+        self.request = None
+        self.response = None
         self.logLevel = log_level
         self.cookieFileName = self.build_cookie_filename()
-        self.write_log("Szamla Agent initialization finished (" + 'apiKey: ' + api_key + ")", 'DEBUG')
+        self.write_log("Szamla Agent initialization finished (" + 'apiKey: ' + api_key + ")", logging.DEBUG)
 
-    def get_hash(self):
-        return hash(self.username)
+    @staticmethod
+    def create(username, password, download_pdf=True, log_level=logging.DEBUG):
+        index = SzamlaAgent.get_hash(username)
+
+        if index not in SzamlaAgent.agents:
+            SzamlaAgent.agents[index] = SzamlaAgent(username, password, None, download_pdf, log_level)
+
+        return SzamlaAgent.agents[index]
 
     def build_cookie_filename(self):
         filename = 'cookie'
@@ -61,15 +99,62 @@ class SzamlaAgent:
         apikey = self.setting.get_api_key()
 
         if len(username) != 0:
-            filename += "_" + hash(username)
+            filename += "_" + hashlib.sha1(username).hexdigest()
         elif len(apikey) != 0:
-            filename += "_" + hash(apikey)
+            filename += "_" + hashlib.sha1(apikey).hexdigest()
 
         return filename + '.txt'
 
     def send_request(self, request):
         self.request = request
-        response = SzamlaAgentResponse()
+        response = SzamlaAgentResponse(self, request.send())
+        return response.handle_response()
+
+    def generate_document(self, request_type, document):
+        request = SzamlaAgentRequest(self, request_type, document)
+        return self.send_request(request)
+
+    def generate_invoice(self, invoice):
+        return self.generate_document('generateInvoice', invoice)
+
+    def generate_pre_payment_invoice(self, invoice):
+        return self.generate_invoice(invoice)
+
+    def generate_final_invoice(self, invoice):
+        return self.generate_invoice(invoice)
+
+    def generate_corrective_invoice(self, invoice):
+        return self.generate_invoice(invoice)
+
+    def generate_receipt(self, receipt):
+        return self.generate_document('generateReceipt', receipt)
+
+    def pay_invoice(self, invoice):
+        return self.generate_document('payInvoice', invoice)
+
+    def send_receipt(self, receipt):
+        return self.generate_document('sendReceipt', receipt)
+
+    def get_invoice_data(self, data, invoice_type=Invoice.FROM_INVOICE_NUMBER):
+        invoice = Invoice()
+
+        if invoice_type == Invoice.FROM_INVOICE_NUMBER:
+            invoice.header.invoiceNumber = data
+        else:
+            invoice.header.orderNumber = data
+
+        if self.is_download_pdf():
+            message = "Wrong setting for downloading PDF file: please set 'downloadPdf' to true to download invoice."
+            self.write_log(message, logging.WARN)
+
+        self.set_download_pdf(True)
+        return self.generate_document('requestInvoicePDF', invoice)
+
+    def is_download_pdf(self):
+        return self.setting.get_download_pdf()
+
+    def set_download_pdf(self, download_pdf):
+        return self.setting.set_download_pdf(download_pdf)
 
     def write_log(self, message, log_level=logging.DEBUG):
         if self.logLevel < log_level:
@@ -79,3 +164,21 @@ class SzamlaAgent:
             logger = logging.Logger("szamla_agent", log_level)
             logger.log(log_level, message)
         return True
+
+    @staticmethod
+    def get_by_instance_id(self, instance_id):
+        index = SzamlaAgent.get_hash(instance_id)
+        agent = SzamlaAgent.agents[index]
+
+        if agent is None:
+            if '@' not in instance_id and instance_id.length() == SzamlaAgentSetting.API_KEY_LENGTH:
+                raise SzamlaAgentException(SzamlaAgentException.NO_AGENT_INSTANCE_WITH_APIKEY)
+            else:
+                raise SzamlaAgentException(SzamlaAgentException.NO_AGENT_INSTANCE_WITH_USERNAME)
+        return agent
+
+    @staticmethod
+    def get_hash(username):
+        return hashlib.sha1(username).hexdigest()
+
+
