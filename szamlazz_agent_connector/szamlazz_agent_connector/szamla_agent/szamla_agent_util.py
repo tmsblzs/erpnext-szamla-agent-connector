@@ -1,6 +1,9 @@
 import datetime
 import os
 from pathlib import Path
+from xml.dom.minidom import minidom
+from xml.etree import ElementTree
+from xml.etree.ElementTree import ParseError
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent import SzamlaAgent
 
@@ -29,6 +32,18 @@ class SzamlaAgentUtil:
     @staticmethod
     def get_date_time_with_milliseconds():
         return datetime.datetime.today().strftime("YmdHis")
+
+    @staticmethod
+    def format_xml(xml):
+        return ElementTree.parse(xml)
+
+    @staticmethod
+    def check_valid_xml(xml):
+        try:
+            ElementTree.fromstring(xml)
+            return True
+        except ParseError:
+            return False
 
     @staticmethod
     def get_real_path(path):

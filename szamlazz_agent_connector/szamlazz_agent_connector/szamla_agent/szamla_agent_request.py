@@ -1,3 +1,11 @@
+import logging
+
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
+    SzamlaAgentException
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent import SzamlaAgent
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+
+
 class SzamlaAgentRequest:
     HTTP_OK = 200
     CRLF = "\r\n"
@@ -65,56 +73,112 @@ class SzamlaAgentRequest:
     # Kérés engedélyezési módok
     REQUEST_AUTHORIZATION_BASIC_AUTH = 1
 
-    agent = ''
+    @property
+    def agent(self):
+        return self.__agent
 
-    # A Számla Agent kérés típusa
-    # @ see SzamlaAgentRequest::getActionName()
-    # @ var string
-    type = ''
-
-    # Azaz entitás, amelynek adatait XML formátumban továbbítani fogjuk
-    # (számla, díjbekérő, szállítólevél, adózó, stb.)
-    # @ var object
-    entity = ''
-
-    # Az Agent kéréshez összeállított XML adatok
-    # @ var string
-    xmlData = ''
-
-    # XML gyökérelem neve
-    # @ var string
-    xmlName = ''
-
-    # XML fájl elérési útvonala
-    # @ var string
-    xmlFilePath = ''
-
-    # XSD könyvtárának neve
-    # @ var string
-    xsdDir = ''
-
-    # Számla Agent kérés XML fájlneve
-    # @ var string
-    fileName = ''
-
-    # Egyedi elválasztó azonosító az XML kéréshez
-    # @ var string
-    delim = ''
-
-    # Az Agent kérésnél továbbított POST adatok
-    # @ var string
-    postFields = ''
-
-    # Az Agent kéréshez tartozó adatok CDATA - ként lesznek átadva
-    # @ var boolean
-    cData = True
+    @agent.setter
+    def agent(self, value):
+        if not isinstance(value, SzamlaAgent):
+            raise TypeError('agent must be an SzamlaAgent')
+        self.__agent = value
 
     def __init__(self, agent, request_type, entity):
         self.agent = agent
         self.type = request_type
         self.entity = entity
         self.cData = True
+        self.fileName = ''
+        self.xmlName = ''
+        self.xsdDir = ''
+        self.xmlData = ''
+        self.xmlFilePath = ''
+
+    def build_xml_data(self):
+        self.set_xml_file_data(self.type)
+        agent = self.agent
+        agent.write_log("Collecting XML data is starting", logging.DEBUG)
+        xml_data = self.entity.build_xml_data(self)
+
+        xml = self.array_to_xml(xml_data)
+        try:
+            result = SzamlaAgentUtil.check_valid_xml(xml.save())
+            if not result:
+                raise SzamlaAgentException(SzamlaAgentException.XML_NOT_VALID + f"in line {result[0].line}: {result[o].message}")
+            format_xml = SzamlaAgentUtil.format_xml(xml)
+            self.xmlData = format_xml
+            agent.write_log("Collection XML data has done.", logging.DEBUG)
+            self.create_xml_file(format_xml)
+        except Exception as ex:
+            raise SzamlaAgentException(SzamlaAgentException.XML_DATA_BUILD_FAILED + format(ex))
 
     def send(self):
         pass
 
+    def set_xml_file_data(self, type):
+        file_name = ''
+        xml_name = ''
+        xsd_dir = ''
+        if type == 'generateProforma' \
+                or type == 'generateInvoice' \
+                or type == 'generatePrePaymentInvoice' \
+                or type == 'generateFinalInvoice' \
+                or type == 'generateCorrectiveInvoice' \
+                or type == 'generateDeliveryNote':
+            file_name = 'action-xmlagentxmlfile'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_CREATE_INVOICE
+            xsd_dir = 'agent'
+        elif type == 'generateReverseInvoice':
+            file_name = 'action-szamla_agent_st'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_CREATE_REVERSE_INVOICE
+            xsd_dir = 'agentst'
+        elif type == 'payInvoice':
+            file_name = 'action-szamla_agent_kifiz'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_PAY_INVOICE
+            xsd_dir = 'agentkifiz'
+        elif type == 'requestInvoiceData':
+            file_name = 'action-szamla_agent_xml'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_REQUEST_INVOICE_XML
+            xsd_dir = 'agentxml'
+        elif type == 'requestInvoicePDF':
+            file_name = 'action-szamla_agent_pdf'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_REQUEST_INVOICE_PDF
+            xsd_dir = 'agentpdf'
+        elif type == 'generateReceipt':
+            file_name = 'action-szamla_agent_nyugta_storno'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_CREATE_RECEIPT
+            xsd_dir = 'nyugtacreate'
+        elif type == 'generateReverseReceipt':
+            file_name = 'action-szamla_agent_nyugta_storno'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_CREATE_REVERSE_RECEIPT
+            xsd_dir = 'nyugtast'
+        elif type == 'sendReceipt':
+            file_name = 'action-szamla_agent_nyugta_send'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_SEND_RECEIPT
+            xsd_dir = 'nyugtasend'
+        elif type == 'requestReceiptData' \
+                or type == 'requestReceiptPDF':
+            file_name = 'action-szamla_agent_nyugta_get'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_GET_RECEIPT
+            xsd_dir = 'nyugtaget'
+        elif type == 'getTaxPayer':
+            file_name = 'action-szamla_agent_taxpayer'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_TAXPAYER
+            xsd_dir = 'taxpayer'
+        elif type == 'deleteProforma':
+            file_name = 'action-szamla_agent_dijbekero_torlese'
+            xml_name = SzamlaAgentRequest.XML_SCHEMA_DELETE_PROFORMA
+            xsd_dir = 'dijbekerodel'
+        else:
+            raise SzamlaAgentException(SzamlaAgentException.REQUEST_TYPE_NOT_EXISTS + f": {type}")
+
+        self.fileName = file_name
+        self.xmlName = xml_name
+        self.xsdDir = xsd_dir
+
+    def create_xml_file(self, xml):
+        file_name = SzamlaAgentUtil.get_xml_file_name('request', self.xmlName, self.entity)
+        xml.write(file_name)
+
+        self.xmlFilePath = SzamlaAgentUtil.get_real_path(file_name)
+        self.agent.write_log(f"XML save is succeeded: {self.xmlFilePath}", logging.DEBUG)
