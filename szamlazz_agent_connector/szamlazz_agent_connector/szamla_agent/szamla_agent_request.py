@@ -113,7 +113,20 @@ class SzamlaAgentRequest:
             raise SzamlaAgentException(SzamlaAgentException.XML_DATA_BUILD_FAILED + format(ex))
 
     def send(self):
-        pass
+        self.build_xml_data()
+        self.build_query()
+
+        method = self.agent.callMethod
+        if method == self.CALL_METHOD_AUTO:
+            response = self.check_connection()
+        elif method == self.CALL_METHOD_CURL:
+            response = self.make_curl_call()
+        elif method == self.CALL_METHOD_LEGACY:
+            response = self.make_legacy_call()
+        else:
+            raise SzamlaAgentException(SzamlaAgentException.CALL_TYPE_NOT_EXISTS + ": " + method)
+
+        return response
 
     def set_xml_file_data(self, type):
         file_name = ''
