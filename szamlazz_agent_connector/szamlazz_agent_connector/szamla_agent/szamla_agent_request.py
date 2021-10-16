@@ -1,4 +1,5 @@
 import logging
+import pycurl
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
@@ -127,6 +128,31 @@ class SzamlaAgentRequest:
             raise SzamlaAgentException(SzamlaAgentException.CALL_TYPE_NOT_EXISTS + ": " + method)
 
         return response
+
+    def check_connection(self):
+        agent = self.agent
+        ch = pycurl.Curl()
+        ch.setopt(pycurl.SSL_VERIFYPEER, True)
+        ch.setopt(pycurl.SSL_VERIFYHOST, 2)
+        ch.setopt(pycurl.CAINFO, agent.certificationFile())
+        ch.setopt(pycurl.NOBODY, True)
+
+        if self.is_basic_auth_request():
+            ch.setopt(pycurl.USERPWD, self.basic_auth_user_pwd())
+
+        ch.perform()
+
+        code = ch.getinfo(pycurl.HTTP_CODE)
+        ch.close()
+
+        if code == SzamlaAgentRequest.HTTP_OK:
+            agent.callMethod(SzamlaAgentRequest.CALL_METHOD_CURL)
+            agent.write_log("Connection type is set to 'CURL'", logging.DEBUG)
+            return self.make_curl_call()
+        else:
+            agent.callMethod(SzamlaAgentRequest.CALL_METHOD_LEGACY)
+            agent.write_log("Connection type is set to 'LEGACY'", logging.WARN)
+            return self.make_curl_call()
 
     def set_xml_file_data(self, type):
         file_name = ''
