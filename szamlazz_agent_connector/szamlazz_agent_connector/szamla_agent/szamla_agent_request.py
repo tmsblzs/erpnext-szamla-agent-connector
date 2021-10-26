@@ -1,4 +1,10 @@
+import fileinput
 import logging
+import re
+
+import mmap
+import os
+
 import pycurl
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
@@ -134,11 +140,11 @@ class SzamlaAgentRequest:
         ch = pycurl.Curl()
         ch.setopt(pycurl.SSL_VERIFYPEER, True)
         ch.setopt(pycurl.SSL_VERIFYHOST, 2)
-        ch.setopt(pycurl.CAINFO, agent.certificationFile())
+        ch.setopt(pycurl.CAINFO, agent.certificationFile)
         ch.setopt(pycurl.NOBODY, True)
 
-        if self.is_basic_auth_request():
-            ch.setopt(pycurl.USERPWD, self.basic_auth_user_pwd())
+        if self.is_basic_auth_request:
+            ch.setopt(pycurl.USERPWD, self.basic_auth_user_pwd)
 
         ch.perform()
 
@@ -153,6 +159,101 @@ class SzamlaAgentRequest:
             agent.callMethod(SzamlaAgentRequest.CALL_METHOD_LEGACY)
             agent.write_log("Connection type is set to 'LEGACY'", logging.WARN)
             return self.make_curl_call()
+
+    def make_curl_call(self):
+        try:
+            agent = self.agent
+            ch = pycurl.Curl()
+            ch.setopt(pycurl.SSL_VERIFYPEER, True)
+            ch.setopt(pycurl.SSL_VERIFYHOST, 2)
+            ch.setopt(pycurl.CAINFO, agent.certificationFile)
+            ch.setopt(pycurl.POST, True)
+            ch.setopt(pycurl.HEADER, True)
+            ch.setopt(pycurl.INFOTYPE_HEADER_OUT, True)
+            ch.setopt(pycurl.VERBOSE, True)
+
+            if self.is_basic_auth_request:
+                ch.setopt(pycurl.USERPWD, self.basic_auth_user_pwd)
+
+            post_fields = {self.xmlFilePath : (self.xmlFilePath, open(self.xmlFilePath), 'rb', 'text/xml' )}
+
+            http_headers = {
+                'charset' : SzamlaAgent.CHARSET,
+                'API' : SzamlaAgent.API_VERSION}
+
+            custom_http_headers = agent.customHttpHeaders
+            if custom_http_headers:
+                for key in custom_http_headers:
+                    http_headers[key] = custom_http_headers[key]
+                    
+            ch.setopt(pycurl.HTTPHEADER, http_headers)
+
+            if self.is_attachments:
+                attachments = self.entity.attachments
+                if attachments:
+                    for idx, item in attachments:
+                        if os.path.exists(item):
+                            is_attachable = True
+                            for field in post_fields:
+                                if post_fields[field] == item[field]:
+                                    is_attachable = False
+                                    agent.write_log(f'{idx} has already attached: {item[field]}', logging.DEBUG)
+
+                            if is_attachable:
+                                attachment = (self.xmlFilePath, open(self.xmlFilePath), 'rb', 'text/xml' )
+                                post_fields[f'attachfile{idx}'] = attachment
+                                agent.write_log(f'{idx} document is attached: ', item, logging.DEBUG)
+
+            ch.setopt(pycurl.POSTFIELDS, post_fields)
+            ch.setopt(pycurl.TIMEOUT, SzamlaAgentRequest.REQUEST_TIMEOUT)
+
+            if agent.cookieFileName:
+                cookie_file = self.cookie_file_path()
+                if os.path.exists(cookie_file) and os.path.getsize(cookie_file) > 0 and self.file_get_contents(cookie_file, b'curl'):
+                    with open(cookie_file, 'a') as file:
+                        file.write('')
+                        agent.write_log("Cookie has changed", logging.DEBUG)
+
+                ch.setopt(pycurl.COOKIEJAR, cookie_file)
+                if os.path.exists(cookie_file) and os.path.getsize(cookie_file) > 0:
+                    ch.setopt(pycurl.COOKIEFILE, cookie_file)
+
+            agent.write_log(f"CURL data send is starting: {post_fields}", logging.DEBUG)
+            result = ch.perform()
+
+            header_size = ch.getinfo(pycurl.HEADER_SIZE)
+            header = result[0:header_size]
+            headers = re.split('/\n|\r\n?/', header)
+            body = result[header_size:]
+
+            response = {
+                'headers': self.headers_from_response(headers),
+                'body': body
+            }
+
+            error = ch.errstr()
+            if error:
+                raise SzamlaAgentException(error)
+            else:
+                keys = ''.join(headers)
+                if response['headers']['Content-Type'] == 'application/pdf' or not re.search('/(szlahu_)/', keys):
+                    message = response['headers']
+                else:
+                    message = response
+                response['headers']['Schema-Type'] = self.get_xml_schema_type()
+                agent.write_log(f'CURL data is successfully ended {message}', logging.DEBUG)
+
+            ch.close()
+            return response
+        except Exception as ex:
+            raise ex
+
+    def file_get_contents(self, file_name, text):
+        with open(file_name, 'rb', 0) as f:
+            s = mmap.mmap(fileinput.fileno(), 0, access=mmap.ACCESS_READ) as s:
+            if s.find(text) != -1:
+                return True
+        return False
 
     def set_xml_file_data(self, type):
         file_name = ''

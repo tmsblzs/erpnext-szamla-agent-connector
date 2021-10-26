@@ -62,7 +62,7 @@ class SzamlaAgent:
     # use as static variable
     agents = {}
 
-    customHttpHeaders = []
+    customHttpHeaders = {}
     apiUrl = API_URL
     pdfFileSave = True
     environment = []
