@@ -9,6 +9,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.response.sza
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import \
     SzamlaAgentRequest
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_setting import SzamlaAgentSetting
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
 
 
 class SzamlaAgent:
@@ -65,7 +66,6 @@ class SzamlaAgent:
     customHttpHeaders = {}
     apiUrl = API_URL
     pdfFileSave = True
-    environment = []
 
     def __init__(self,
                  username,
@@ -82,6 +82,7 @@ class SzamlaAgent:
         self.response = None
         self.logLevel = log_level
         self.cookieFileName = self.build_cookie_filename()
+        self.environment = {}
         self.write_log("Szamla Agent initialization finished (" + 'apiKey: ' + api_key + ")", logging.DEBUG)
 
     @staticmethod
@@ -165,6 +166,12 @@ class SzamlaAgent:
             logger.log(log_level, message)
         return True
 
+    def get_certification_file(self):
+        file_name = self.certificationFileName
+        if not file_name:
+            file_name = SzamlaAgent.CERTIFICATION_FILENAME
+        return SzamlaAgentUtil.get_abs_path(SzamlaAgent.CERTIFICATION_PATH, file_name)
+
     @staticmethod
     def get_by_instance_id(self, instance_id):
         index = SzamlaAgent.get_hash(instance_id)
@@ -181,4 +188,18 @@ class SzamlaAgent:
     def get_hash(username):
         return hashlib.sha1(username).hexdigest()
 
+    def has_environment_auth(self):
+        return self.environment and isinstance(self.environment, list) and \
+               self.environment['auth']
 
+    def get_environment_auth_type(self):
+        return self.environment['auth']['type'] if self.has_environment_auth() and \
+                                                   self.environment['auth']['type'] else 0
+
+    def get_environment_auth_user(self):
+        return self.environment['auth']['user'] if self.has_environment_auth() and \
+                                                   self.environment['auth']['user'] else None
+
+    def get_environment_auth_password(self):
+        return self.environment['auth']['password'] if self.has_environment_auth() and \
+                                                       self.environment['auth']['password'] else None

@@ -1,4 +1,7 @@
-class Invoice:
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.document import Document
+
+
+class Invoice(Document):
 
     # Számla típus: papír számla 
     INVOICE_TYPE_P_INVOICE = 1
