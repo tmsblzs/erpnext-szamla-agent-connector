@@ -1,2 +1,3 @@
 class InvoiceHeader:
-    pass
+    def __init__(self, type):
+        pass
