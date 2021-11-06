@@ -2,6 +2,7 @@ import json
 import logging
 import xml.etree.ElementTree as Et
 from base64 import b64encode
+from types import TracebackType
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.document import Document
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
@@ -84,7 +85,7 @@ class SzamlaAgentResponse:
                         pdf_data = self.responseObj.pdfFile
                         xml_name = agent.request.xmlName
                         if pdf_data is None or xml_name not in SzamlaAgentRequest.XML_SCHEMA_SEND_RECEIPT \
-                            or xml_name not in SzamlaAgentRequest.XML_SCHEMA_PAY_INVOICE:
+                                or xml_name not in SzamlaAgentRequest.XML_SCHEMA_PAY_INVOICE:
                             raise SzamlaAgentException(SzamlaAgentException.DOCUMENT_DATA_IS_MISSING)
                         elif pdf_data is not None:
                             self.pdfFile = pdf_data
@@ -92,11 +93,12 @@ class SzamlaAgentResponse:
                             if agent.is_pdf_file_save():
                                 with open(self.get_pdf_file_name(), 'w') as f:
                                     for line in pdf_data:
-                                        f.write(pdf_data)
+                                        f.write(line)
                     else:
                         self.content = response['body']
                 except Exception as ex:
-                    agent.write_log(SzamlaAgentException.PDF_FILE_SAVE_FAILED + f": {ex.with_traceback()}", logging.DEBUG)
+                    agent.write_log(SzamlaAgentException.PDF_FILE_SAVE_FAILED +
+                                    f": {ex.with_traceback()}", logging.DEBUG)
                     raise ex
 
     def check_fields(self):
@@ -114,7 +116,7 @@ class SzamlaAgentResponse:
             xml = Et.parse(response['body'])
         else:
             xml = Et.parse(xml_data)
-        response_type = agent.responseType
+        # response_type = agent.responseType
         name = ''
         if self.is_failed():
             name = 'error-'
@@ -133,7 +135,7 @@ class SzamlaAgentResponse:
 
     def get_pdf_file_name(self, with_path=True):
         header = self.agent.get_request_entity_header()
-        if isinstance(header, InvoiceHeader) and header.is_preview_pdf():
+        if isinstance(header, InvoiceHeader) and header.preview_pdf:
             entity = self.agent.get_request_entity()
 
             name = ''

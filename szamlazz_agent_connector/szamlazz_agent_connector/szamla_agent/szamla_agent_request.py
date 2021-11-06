@@ -116,12 +116,12 @@ class SzamlaAgentRequest:
         xml_data = self.entity.build_xml_data(self)
 
         xml_node = ET.Element()
-        xml = self.array_to_xml(xml_data, )
+        xml = self.array_to_xml(xml_data, xml_node)
         try:
             result = SzamlaAgentUtil.check_valid_xml(xml.save())
             if not result:
                 raise SzamlaAgentException(
-                    SzamlaAgentException.XML_NOT_VALID + f"in line {result[0].line}: {result[o].message}")
+                    SzamlaAgentException.XML_NOT_VALID + f"in line {result[0].line}: {result[0].message}")
             format_xml = SzamlaAgentUtil.format_xml(xml)
             self.xmlData = format_xml
             agent.write_log("Collection XML data has done.", logging.DEBUG)
@@ -148,6 +148,7 @@ class SzamlaAgentRequest:
                     value = 'true' if xml_data[key] else 'false'
 
                 ET.SubElement(xml_node, key, value)
+        return xml_node
 
     def send(self):
         self.build_xml_data()

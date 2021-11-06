@@ -5,14 +5,45 @@ from xml.dom.minidom import minidom
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
+    SzamlaAgentException
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent import SzamlaAgent
 
 
 class SzamlaAgentUtil:
+    DEFAULT_ADDED_DAYS = 8
 
     DEFAULT_BASE_PATH = f".{os.pathsep}..{os.pathsep}..{os.pathsep}"
 
-    basePath = ''
+    DATE_FORMAT_DATE = "%Y-%m-d"
+
+    DATE_FORMAT_DATETIME = "%Y-%m-d %H:%M:%S"
+
+    DATE_FORMAT_TIMESTAMP = 'timestamp'
+
+    basePath = DEFAULT_BASE_PATH
+
+
+    @staticmethod
+    def add_days_to_date(count, date=None):
+        new_date = datetime.datetime.today()
+
+        if date:
+            new_date = datetime.datetime.strptime(date, "%Y-%m-d")
+        new_date = new_date + datetime.timedelta(days=count)
+        return SzamlaAgentUtil.get_date_str(new_date)
+
+    @staticmethod
+    def get_date_str(date: datetime, date_format=DATE_FORMAT_DATE):
+        if date_format == SzamlaAgentUtil.DATE_FORMAT_TIMESTAMP:
+            result = date.timestamp()
+        else:
+            result = date.strftime(date_format)
+        return result
+
+    @staticmethod
+    def get_today_str():
+        return datetime.datetime.today().strftime(SzamlaAgentUtil.DATE_FORMAT_DATE)
 
     @staticmethod
     def is_not_blank(value):
@@ -64,3 +95,75 @@ class SzamlaAgentUtil:
             return SzamlaAgentUtil.get_real_path(SzamlaAgentUtil.DEFAULT_BASE_PATH)
         else:
             return SzamlaAgentUtil.get_real_path(SzamlaAgentUtil.basePath)
+
+    @staticmethod
+    def check_str_field(field, value, required, class_name):
+        error_message = ""
+        if value and not isinstance(value, str):
+            error_message = f"The {field} attribute value is not a string!"
+        elif required and not value:
+            error_message = SzamlaAgentUtil.get_required_field_error_message(field)
+
+        if error_message:
+            raise SzamlaAgentException(SzamlaAgentException.FIELDS_CHECK_ERROR +
+                                       f": {error_message} ({class_name})")
+
+    @staticmethod
+    def check_int_field(field, value, required, class_name):
+        error_message = ""
+        if value and not isinstance(value, int):
+            error_message = f"The {field} attribute value is not an integer!"
+        elif required and not value:
+            error_message = SzamlaAgentUtil.get_required_field_error_message(field)
+
+        if error_message:
+            raise SzamlaAgentException(SzamlaAgentException.FIELDS_CHECK_ERROR +
+                                       f": {error_message} ({class_name})")
+
+    @staticmethod
+    def check_float_field(field, value, required, class_name):
+        error_message = ""
+        if value and not isinstance(value, float):
+            error_message = f"The {field} attribute value is not a float!"
+        elif required and not value:
+            error_message = SzamlaAgentUtil.get_required_field_error_message(field)
+
+        if error_message:
+            raise SzamlaAgentException(SzamlaAgentException.FIELDS_CHECK_ERROR +
+                                       f": {error_message} ({class_name})")
+
+    @staticmethod
+    def check_date_field(field, value, required, class_name):
+        error_message = ""
+        if value and not SzamlaAgentUtil.is_valid_date(value):
+            if required:
+                error_message = f"The {field} is required, but contains a not valid date!"
+            else:
+                error_message = f"The {field} is not a valid date!"
+        if error_message:
+            raise SzamlaAgentException(SzamlaAgentException.FIELDS_CHECK_ERROR + f": {error_message} ({class_name})")
+
+    @staticmethod
+    def check_bool_field(field, value, required, class_name):
+        error_message = ""
+        if value and not isinstance(value, bool):
+            if required:
+                error_message = f"The {field} is required, but not boolean!"
+            else:
+                error_message = f"The {field} is not a boolean!"
+
+        if error_message:
+            raise SzamlaAgentException(SzamlaAgentException.FIELDS_CHECK_ERROR + f": {error_message} ({class_name})")
+
+    @staticmethod
+    def get_required_field_error_message(field):
+        return f"The {field} is required, but has no value!"
+
+    @staticmethod
+    def is_valid_date(date):
+        date_format = "%Y-%m-d"
+        try:
+            datetime.datetime.strptime(date, date_format)
+            return True
+        except ValueError:
+            return False

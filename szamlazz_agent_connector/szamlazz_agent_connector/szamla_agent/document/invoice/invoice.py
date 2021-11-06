@@ -1,3 +1,6 @@
+import logging
+import os
+
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer import Buyer
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.credit_note.invoice_credit_note import \
     InvoiceCreditNote
@@ -52,9 +55,7 @@ class Invoice(Document):
         return self.__header
 
     @header.setter
-    def header(self, value):
-        if not isinstance(value, InvoiceHeader):
-            raise TypeError("header must be an InvoiceHeader")
+    def header(self, value: InvoiceHeader):
         self.__header = value
 
     @property
@@ -62,9 +63,7 @@ class Invoice(Document):
         return self.__seller
 
     @seller.setter
-    def seller(self, value):
-        if not isinstance(value, Seller):
-            raise TypeError("seller must be an Seller")
+    def seller(self, value: Seller):
         self.__seller = value
 
     @property
@@ -72,9 +71,7 @@ class Invoice(Document):
         return self.__buyer
 
     @buyer.setter
-    def buyer(self, value):
-        if not isinstance(value, Buyer):
-            raise TypeError("buyer must be an Buyer")
+    def buyer(self, value: Buyer):
         self.__buyer = value
 
     @property
@@ -82,24 +79,18 @@ class Invoice(Document):
         return self.__waybill
 
     @waybill.setter
-    def waybill(self, value):
-        if not isinstance(value, Waybill):
-            raise TypeError("waybill must be an Waybill")
-        self.__buyer = value
+    def waybill(self, value: Waybill):
+        self.__waybill = value
 
     @property
     def items(self):
         return self.__items
 
     @items.setter
-    def items(self, value):
-        if not isinstance(value, list):
-            raise TypeError("items must be an array")
-        return self.__items
+    def items(self, value: list):
+        self.__items = value
 
-    def add_item(self, item):
-        if not isinstance(item, InvoiceItem):
-            raise TypeError("item must be an InvoiceItem")
+    def add_item(self, item: InvoiceItem):
         self.items.append(item)
 
     @property
@@ -107,15 +98,10 @@ class Invoice(Document):
         return self.__credit_notes
 
     @credit_notes.setter
-    def credit_notes(self, value):
-        if not isinstance(value, list):
-            raise TypeError("credit_notes must be an array")
+    def credit_notes(self, value: list):
         self.__credit_notes = value
 
-    def add_credit_note(self, credit_note):
-        if not isinstance(credit_note, InvoiceCreditNote):
-            raise TypeError("credit_note must be an InvoiceCreditNote")
-
+    def add_credit_note(self, credit_note: InvoiceCreditNote):
         if len(self.credit_notes) < Invoice.CREDIT_NOTES_LIMIT:
             self.__credit_notes.append(credit_note)
 
@@ -134,23 +120,22 @@ class Invoice(Document):
         self.items = None
         self.credit_notes = None
         self.is_additive = True
+        self.attachments = []
         if header_type:
             self.header = InvoiceHeader(header_type)
 
-    def build_xml_data(self, request):
-        if not isinstance(request, SzamlaAgentRequest):
-            raise TypeError("request must be an SzamlaAgentRequest")
-
+    def build_xml_data(self, request: SzamlaAgentRequest):
         xml_name = request.xmlName
         if xml_name == SzamlaAgentRequest.XML_SCHEMA_CREATE_INVOICE:
-            data = self.__build_fields_data(request, ['beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek'])
+            data = self.__build_fields_data(request,
+                                            ['beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek'])
         elif xml_name == SzamlaAgentRequest.XML_SCHEMA_DELETE_PROFORMA:
             data = self.__build_fields_data(request, ['beallitasok', 'fejlec'])
         elif xml_name == SzamlaAgentRequest.XML_SCHEMA_CREATE_REVERSE_INVOICE:
             data = self.__build_fields_data(request, ['beallitasok', 'fejlec', 'elado', 'vevo'])
         elif xml_name == SzamlaAgentRequest.XML_SCHEMA_PAY_INVOICE:
             data = self.__build_fields_data(request, ['beallitasok'])
-            data = data + self.__build_credits_xml_data()
+            data = {**data, **self.__build_credits_xml_data()}
         elif xml_name == SzamlaAgentRequest.XML_SCHEMA_REQUEST_INVOICE_XML \
                 or SzamlaAgentRequest.XML_SCHEMA_REQUEST_INVOICE_PDF:
             settings = self.__build_fields_data(request, ['beallitasok'])
@@ -160,9 +145,51 @@ class Invoice(Document):
 
         return data
 
-    def __build_fields_data(self, request, fields):
-        return []
+    def __build_fields_data(self, request, fields: list):
+        data = {}
+
+        for key in fields:
+            if key == 'beallitasok':
+                value = request.agent.setting.build_xml_data(request)
+            elif key == 'fejlec':
+                value = self.header.build_xml_data(request)
+            elif key == 'tetelek':
+                value = self.__build_xml_items_data()
+            elif key == 'elado':
+                value = self.seller.build_xml_data(request) if self.seller else []
+            elif key == 'vevo':
+                value = self.buyer.build_xml_data(request) if self.buyer else []
+            # elif key == 'fuvarlevel':
+            #     value = self.waybill.build_xml_data(request) if self.waybill else []
+            else:
+                raise SzamlaAgentException(SzamlaAgentException.XML_KEY_NOT_EXISTS + f": {key}")
+
+            if value:
+                data[key] = value
+
+        return data
+
+    def __build_xml_items_data(self):
+        data = {}
+        for key in self.items:
+            data[f"item{key}"] = data[key].build_xml_data()
+        return data
 
     def __build_credits_xml_data(self):
-        return []
+        data = {}
+        for key in self.credit_notes:
+            data[f"note{key}"] = data[key].build_xml_data()
+        return data
 
+    def add_attachments(self, file_path):
+        if not file_path:
+            logging.warning("File name is missing")
+        else:
+            if len(self.attachments) >= Invoice.INVOICE_ATTACHMENTS_LIMIT:
+                raise SzamlaAgentException(f"File attached is failed: {file_path}."
+                                           f" Maximum number of attachment is reached."
+                                           f"({Invoice.INVOICE_ATTACHMENTS_LIMIT})")
+            if not os.path.exists(file_path):
+                raise SzamlaAgentException(SzamlaAgentException.ATTACHMENT_NOT_EXISTS + f": {file_path}")
+
+            self.attachments.append(file_path)

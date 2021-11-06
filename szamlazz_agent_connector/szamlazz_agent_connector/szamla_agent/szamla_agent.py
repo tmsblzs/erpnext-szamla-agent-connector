@@ -173,7 +173,7 @@ class SzamlaAgent:
         return SzamlaAgentUtil.get_abs_path(SzamlaAgent.CERTIFICATION_PATH, file_name)
 
     @staticmethod
-    def get_by_instance_id(self, instance_id):
+    def get_by_instance_id(instance_id):
         index = SzamlaAgent.get_hash(instance_id)
         agent = SzamlaAgent.agents[index]
 
@@ -188,8 +188,15 @@ class SzamlaAgent:
     def get_hash(username):
         return hashlib.sha1(username).hexdigest()
 
+    def set_environment(self, name, url, authorization: dict):
+        self.environment = {
+            'name': name,
+            'url': url,
+            'auth': authorization
+        }
+
     def has_environment_auth(self):
-        return self.environment and isinstance(self.environment, list) and \
+        return self.environment and isinstance(self.environment, dict) and \
                self.environment['auth']
 
     def get_environment_auth_type(self):
