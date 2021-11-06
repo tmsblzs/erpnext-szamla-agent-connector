@@ -1,5 +1,8 @@
 import datetime
+import locale
+import logging
 import os
+import re
 from pathlib import Path
 from xml.dom.minidom import minidom
 from xml.etree import ElementTree
@@ -95,6 +98,23 @@ class SzamlaAgentUtil:
             return SzamlaAgentUtil.get_real_path(SzamlaAgentUtil.DEFAULT_BASE_PATH)
         else:
             return SzamlaAgentUtil.get_real_path(SzamlaAgentUtil.basePath)
+
+    @staticmethod
+    def number_format(num, places=0):
+        return locale.format_string("%.*f", (places, num), True)
+
+    @staticmethod
+    def float_format(value):
+        if isinstance(value, int):
+            value = float(value)
+
+        if isinstance(value, float):
+            decimals = len(re.sub(r'/[\d]+[\.]?/', '', value))
+            if decimals == 0:
+                value = SzamlaAgentUtil.number_format(value, 1)
+        else:
+            logging.warning(f"Not valid type!, Instead of float got {type(value)} for this value: {value}")
+        return value
 
     @staticmethod
     def check_str_field(field, value, required, class_name):
