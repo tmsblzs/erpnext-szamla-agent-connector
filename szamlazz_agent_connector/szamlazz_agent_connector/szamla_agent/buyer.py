@@ -1,6 +1,7 @@
 import inspect
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer_ledger import BuyerLedger
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
@@ -58,7 +59,7 @@ class Buyer:
 
     def build_xml_data(self, request: SzamlaAgentRequest):
         request_name = request.xmlName
-        if request_name == SzamlaAgentRequest.XML_SCHEMA_CREATE_INVOICE:
+        if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             self.__required_fields = {'name': "", 'zip': "", 'city': "", 'address': ""}
 
             data = {
@@ -83,7 +84,7 @@ class Buyer:
                 'telefonszam': self.phone,
                 'megjegyzes': self.comment,
             }
-        elif request_name == SzamlaAgentRequest.XML_SCHEMA_CREATE_REVERSE_INVOICE:
+        elif request_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:
             data = {
                 'email': self.email,
                 'adoszam': self.tax_number,

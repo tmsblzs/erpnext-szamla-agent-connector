@@ -4,13 +4,12 @@ import logging
 import os
 import re
 from pathlib import Path
-from xml.dom.minidom import minidom
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.agent_constant import AgentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent import SzamlaAgent
 
 
 class SzamlaAgentUtil:
@@ -18,7 +17,7 @@ class SzamlaAgentUtil:
 
     DEFAULT_BASE_PATH = f".{os.pathsep}..{os.pathsep}..{os.pathsep}"
 
-    DATE_FORMAT_DATE = "%Y-%m-d"
+    DATE_FORMAT_DATE = "%Y-%m-%d"
 
     DATE_FORMAT_DATETIME = "%Y-%m-d %H:%M:%S"
 
@@ -61,7 +60,7 @@ class SzamlaAgentUtil:
         if not name or entity is not None:
             name += '-' + entity.__class__.__name__
         filename = f"{prefix}-{name.lower()}-{SzamlaAgentUtil.get_date_time_with_milliseconds()}.xml"
-        return SzamlaAgentUtil.get_abs_path(SzamlaAgent.XML_FILE_SAVE_PATH, filename)
+        return SzamlaAgentUtil.get_abs_path(AgentConstant.XML_FILE_SAVE_PATH, filename)
 
     @staticmethod
     def get_date_time_with_milliseconds():
@@ -127,6 +126,17 @@ class SzamlaAgentUtil:
         if error_message:
             raise SzamlaAgentException(SzamlaAgentException.FIELDS_CHECK_ERROR +
                                        f": {error_message} ({class_name})")
+
+    @staticmethod
+    def check_str_field_with_reg_exp(self, field,value, required, class_name, pattern):
+        error_message = ''
+        SzamlaAgentUtil.check_str_field(field, value, required, class_name)
+
+        output = re.search(pattern, value)
+        if not output:
+            error_message = f'The {field} attribute value is not appropriate!'
+        if error_message:
+            raise SzamlaAgentException(SzamlaAgentException.FIELDS_CHECK_ERROR + f': {error_message} ({class_name})')
 
     @staticmethod
     def check_int_field(field, value, required, class_name):

@@ -1,5 +1,6 @@
 import inspect
 
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
@@ -7,7 +8,8 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 
 class Seller:
-    def __int__(self, bank="", bank_account=""):
+
+    def __init__(self, bank="", bank_account=""):
         self.bank = bank
         self.bank_account = bank_account
         self.email_reply_to = ""
@@ -23,7 +25,7 @@ class Seller:
                     or field == 'emailSubject' \
                     or field == 'emailContent' \
                     or field == 'signatoryName':
-                SzamlaAgentUtil.check_str_field(field, value, false, type(self).__name__)
+                SzamlaAgentUtil.check_str_field(field, value, False, type(self).__name__)
         return value
 
     def __check_fields(self):
@@ -36,7 +38,7 @@ class Seller:
         self.__check_fields()
         request_name = request.xmlName
 
-        if request_name == SzamlaAgentRequest.XML_SCHEMA_CREATE_INVOICE:
+        if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             data = {
                 'bank': self.bank,
                 'bankszamlaszam': self.bank_account,
@@ -46,7 +48,7 @@ class Seller:
             email_data = self.__get_xml_email_data()
             if email_data:
                 data = {**data, **email_data}
-        elif request_name == SzamlaAgentRequest.XML_SCHEMA_CREATE_REVERSE_INVOICE:
+        elif request_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:
             data = self.__get_xml_email_data()
         else:
             raise SzamlaAgentException(SzamlaAgentException.XML_SCHEMA_TYPE_NOT_EXISTS + f": {request_name}")

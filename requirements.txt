@@ -1,1 +1,8 @@
 frappe
+ET
+et
+et-xmlfile
+regex
+random2
+fmmap
+pycurl

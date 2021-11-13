@@ -1,4 +1,3 @@
-import cgi
 import fileinput
 import html
 import logging
@@ -8,14 +7,15 @@ import re
 import mmap
 import os
 
-import ET as ET
+import xml.etree.ElementTree as ET
 import pycurl
 
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.agent_constant import AgentConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.document import Document
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent import SzamlaAgent
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
 
 
@@ -39,62 +39,18 @@ class SzamlaAgentRequest:
     # Számla Agent kérés módja: automatikus
     CALL_METHOD_AUTO = 3
 
-    # Számlakészítéshez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / agent / xmlszamla.xsd
-    XML_SCHEMA_CREATE_INVOICE = 'xmlszamla'
-
-    # Számla sztornózásához használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / agentst / xmlszamlast.xsd
-    XML_SCHEMA_CREATE_REVERSE_INVOICE = 'xmlszamlast'
-
-    # Jóváírás rögzítéséhez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / agentkifiz / xmlszamlakifiz.xsd
-    XML_SCHEMA_PAY_INVOICE = 'xmlszamlakifiz'
-
-    # Számla adatok lekéréséhez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / agentxml / xmlszamlaxml.xsd
-    XML_SCHEMA_REQUEST_INVOICE_XML = 'xmlszamlaxml'
-
-    # Számla PDF lekéréséhez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / agentpdf / xmlszamlapdf.xsd
-    XML_SCHEMA_REQUEST_INVOICE_PDF = 'xmlszamlapdf'
-
-    # Nyugta készítéséhez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / nyugtacreate / xmlnyugtacreate.xsd
-    XML_SCHEMA_CREATE_RECEIPT = 'xmlnyugtacreate'
-
-    # Nyugta sztornóhoz használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / nyugtast / xmlnyugtast.xsd
-    XML_SCHEMA_CREATE_REVERSE_RECEIPT = 'xmlnyugtast'
-
-    # Nyugta kiküldéséhez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / nyugtasend / xmlnyugtasend.xsd
-    XML_SCHEMA_SEND_RECEIPT = 'xmlnyugtasend'
-
-    # Nyugta megjelenítéséhez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / nyugtaget / xmlnyugtaget.xsd
-    XML_SCHEMA_GET_RECEIPT = 'xmlnyugtaget'
-
-    # Adózó adatainak lekérdezéséhez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / taxpayer / xmltaxpayer.xsd
-    XML_SCHEMA_TAXPAYER = 'xmltaxpayer'
-
-    # Díjbekérő törléséhez használt XML séma
-    # @ see https: // www.szamlazz.hu / szamla / docs / xsds / dijbekerodel / xmlszamladbkdel.xsd
-    XML_SCHEMA_DELETE_PROFORMA = 'xmlszamladbkdel'
-
     # Kérés engedélyezési módok
     REQUEST_AUTHORIZATION_BASIC_AUTH = 1
 
-    @property
-    def agent(self):
-        return self.__agent
-
-    @agent.setter
-    def agent(self, value):
-        if not isinstance(value, SzamlaAgent):
-            raise TypeError('agent must be an SzamlaAgent')
-        self.__agent = value
+    # @property
+    # def agent(self):
+    #     return self.__agent
+    #
+    # @agent.setter
+    # def agent(self, value):
+    #     if not isinstance(value, SzamlaAgent):
+    #         raise TypeError('agent must be an SzamlaAgent')
+    #     self.__agent = value
 
     def __init__(self, agent, request_type, entity):
         self.agent = agent
@@ -219,8 +175,8 @@ class SzamlaAgentRequest:
             post_fields = {self.xmlFilePath: (self.xmlFilePath, open(self.xmlFilePath), 'rb', 'text/xml')}
 
             http_headers = {
-                'charset': SzamlaAgent.CHARSET,
-                'API': SzamlaAgent.API_VERSION}
+                'charset': AgentConstant.CHARSET,
+                'API': AgentConstant.API_VERSION}
 
             custom_http_headers = agent.customHttpHeaders
             if custom_http_headers:
@@ -327,7 +283,7 @@ class SzamlaAgentRequest:
     def get_cookie_file_path(self):
         file_name = self.agent.cookieFileName
         if not file_name:
-            file_name = SzamlaAgent.COOKIE_FILENAME
+            file_name = AgentConstant.COOKIE_FILENAME
         return os.path.join(SzamlaAgentUtil.get_base_path(), file_name)
 
     def file_get_contents(self, file_name, text):
@@ -348,48 +304,48 @@ class SzamlaAgentRequest:
                 or type == 'generateCorrectiveInvoice' \
                 or type == 'generateDeliveryNote':
             file_name = 'action-xmlagentxmlfile'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_CREATE_INVOICE
+            xml_name = XmlSchema.XML_SCHEMA_CREATE_INVOICE
             xsd_dir = 'agent'
         elif type == 'generateReverseInvoice':
             file_name = 'action-szamla_agent_st'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_CREATE_REVERSE_INVOICE
+            xml_name = XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE
             xsd_dir = 'agentst'
         elif type == 'payInvoice':
             file_name = 'action-szamla_agent_kifiz'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_PAY_INVOICE
+            xml_name = XmlSchema.XML_SCHEMA_PAY_INVOICE
             xsd_dir = 'agentkifiz'
         elif type == 'requestInvoiceData':
             file_name = 'action-szamla_agent_xml'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_REQUEST_INVOICE_XML
+            xml_name = XmlSchema.XML_SCHEMA_REQUEST_INVOICE_XML
             xsd_dir = 'agentxml'
         elif type == 'requestInvoicePDF':
             file_name = 'action-szamla_agent_pdf'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_REQUEST_INVOICE_PDF
+            xml_name = XmlSchema.XML_SCHEMA_REQUEST_INVOICE_PDF
             xsd_dir = 'agentpdf'
         elif type == 'generateReceipt':
             file_name = 'action-szamla_agent_nyugta_storno'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_CREATE_RECEIPT
+            xml_name = XmlSchema.XML_SCHEMA_CREATE_RECEIPT
             xsd_dir = 'nyugtacreate'
         elif type == 'generateReverseReceipt':
             file_name = 'action-szamla_agent_nyugta_storno'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_CREATE_REVERSE_RECEIPT
+            xml_name = XmlSchema.XML_SCHEMA_CREATE_REVERSE_RECEIPT
             xsd_dir = 'nyugtast'
         elif type == 'sendReceipt':
             file_name = 'action-szamla_agent_nyugta_send'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_SEND_RECEIPT
+            xml_name = XmlSchema.XML_SCHEMA_SEND_RECEIPT
             xsd_dir = 'nyugtasend'
         elif type == 'requestReceiptData' \
                 or type == 'requestReceiptPDF':
             file_name = 'action-szamla_agent_nyugta_get'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_GET_RECEIPT
+            xml_name = XmlSchema.XML_SCHEMA_GET_RECEIPT
             xsd_dir = 'nyugtaget'
         elif type == 'getTaxPayer':
             file_name = 'action-szamla_agent_taxpayer'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_TAXPAYER
+            xml_name = XmlSchema.XML_SCHEMA_TAXPAYER
             xsd_dir = 'taxpayer'
         elif type == 'deleteProforma':
             file_name = 'action-szamla_agent_dijbekero_torlese'
-            xml_name = SzamlaAgentRequest.XML_SCHEMA_DELETE_PROFORMA
+            xml_name = XmlSchema.XML_SCHEMA_DELETE_PROFORMA
             xsd_dir = 'dijbekerodel'
         else:
             raise SzamlaAgentException(SzamlaAgentException.REQUEST_TYPE_NOT_EXISTS + f": {type}")
@@ -406,21 +362,21 @@ class SzamlaAgentRequest:
         self.agent.write_log(f"XML save is succeeded: {self.xmlFilePath}", logging.DEBUG)
 
     def get_xml_schema_type(self):
-        if self.XML_SCHEMA_CREATE_INVOICE \
-                or self.XML_SCHEMA_CREATE_REVERSE_INVOICE \
-                or self.XML_SCHEMA_PAY_INVOICE \
-                or self.XML_SCHEMA_REQUEST_INVOICE_XML \
-                or self.XML_SCHEMA_REQUEST_INVOICE_PDF:
-            return Document.DOCUMENT_TYPE_INVOICE
+        if self.xmlName == XmlSchema.XML_SCHEMA_CREATE_INVOICE \
+                or self.xmlName == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE \
+                or self.xmlName == XmlSchema.XML_SCHEMA_PAY_INVOICE \
+                or self.xmlName == XmlSchema.XML_SCHEMA_REQUEST_INVOICE_XML \
+                or self.xmlName == XmlSchema.XML_SCHEMA_REQUEST_INVOICE_PDF:
+            return DocumentConstant.DOCUMENT_TYPE_INVOICE
         # if self.XML_SCHEMA_DELETE_PROFORMA:
         #     return Document.DOCUMENT_TYPE_INVOICE
         raise SzamlaAgentException(SzamlaAgentException.XML_SCHEMA_TYPE_NOT_EXISTS + f": {self.xmlName}")
 
-    def is_attachments(self):
-        entity = self.entity
-        if isinstance(entity, Invoice):
-            return len(entity.attachments) > 0
-        return False
+    # def is_attachments(self):
+    #     entity = self.entity
+    #     if isinstance(entity, Invoice):
+    #         return len(entity.attachments) > 0
+    #     return False
 
     def is_basic_auth_request(self):
         agent = self.agent

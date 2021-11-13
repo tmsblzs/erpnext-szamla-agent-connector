@@ -1,7 +1,8 @@
 import inspect
 
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.invoice_constant import InvoiceConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.document import Document
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.header.document_header import DocumentHeader
@@ -10,7 +11,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 
 class InvoiceHeader(DocumentHeader):
-    def __init__(self, invoice_type=Invoice.INVOICE_TYPE_P_INVOICE):
+    def __init__(self, invoice_type=InvoiceConstant.INVOICE_TYPE_P_INVOICE):
         self.invoice_number = ""
         self.invoice_type = 0
         self.issue_date = ""
@@ -30,7 +31,7 @@ class InvoiceHeader(DocumentHeader):
         self.proforma_number = ""
         self.paid = False
         self.profit_vat = False
-        self.invoice_template = Invoice.INVOICE_TEMPLATE_DEFAULT
+        self.invoice_template = InvoiceConstant.INVOICE_TEMPLATE_DEFAULT
         self.preview_pdf = False
         self.__required_fields = {}
 
@@ -41,7 +42,7 @@ class InvoiceHeader(DocumentHeader):
         self.invoice = True
         self.invoice_type = invoice_type
         self.issue_date = SzamlaAgentUtil.get_today_str()
-        self.payment_method = Document.PAYMENT_METHOD_TRANSFER
+        self.payment_method = DocumentConstant.PAYMENT_METHOD_TRANSFER
         self.currency = Document.get_default_currency()
         self.language = Document.get_default_language()
         self.fulfillment = SzamlaAgentUtil.get_today_str()
@@ -79,7 +80,7 @@ class InvoiceHeader(DocumentHeader):
             return value
 
     def __check_fields(self):
-        fields = inspect.getmembers(Buyer, lambda a: not (inspect.isroutine(a)))
+        fields = inspect.getmembers(InvoiceHeader, lambda a: not (inspect.isroutine(a)))
         fields = [a for a in fields if not (a[0].startswith('__') and a[0].endswith('__'))]
         for item in fields:
             self.__check_field(item[0], item[1])
