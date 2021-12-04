@@ -1,5 +1,5 @@
 class DocumentHeader:
-    def __int__(self):
+    def __init__(self):
         self.invoice = False
         self.reserve_invoice = False
         self.pre_payment = False

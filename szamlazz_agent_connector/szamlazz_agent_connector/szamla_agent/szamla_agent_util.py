@@ -15,7 +15,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.sz
 class SzamlaAgentUtil:
     DEFAULT_ADDED_DAYS = 8
 
-    DEFAULT_BASE_PATH = f".{os.pathsep}..{os.pathsep}..{os.pathsep}"
+    DEFAULT_BASE_PATH = "/var/local"
 
     DATE_FORMAT_DATE = "%Y-%m-%d"
 
@@ -64,7 +64,7 @@ class SzamlaAgentUtil:
 
     @staticmethod
     def get_date_time_with_milliseconds():
-        return datetime.datetime.today().strftime("YmdHis")
+        return datetime.datetime.today().strftime("%Y%m%d%H%M%S")
 
     @staticmethod
     def format_xml(xml):
@@ -88,7 +88,7 @@ class SzamlaAgentUtil:
 
     @staticmethod
     def get_abs_path(dir, filename):
-        file = f"{SzamlaAgentUtil.get_base_path}{os.pathsep}{dir}{os.pathsep}{filename}"
+        file = os.path.join(SzamlaAgentUtil.get_base_path(), dir, filename)
         return SzamlaAgentUtil.get_real_path(file)
 
     @staticmethod
@@ -108,7 +108,7 @@ class SzamlaAgentUtil:
             value = float(value)
 
         if isinstance(value, float):
-            decimals = len(re.sub(r'/[\d]+[\.]?/', '', value))
+            decimals = len(re.sub(r'/[\d]+[\.]?/', '', str(value)))
             if decimals == 0:
                 value = SzamlaAgentUtil.number_format(value, 1)
         else:

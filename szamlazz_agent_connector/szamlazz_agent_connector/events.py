@@ -9,7 +9,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 
 def on_submit(doc, event_name):
-    agent = SzamlaAgentApi.create('fzz87q95czd5fzz87qbkrwpcfzz87qd88fz8fzz87q')
+    agent = SzamlaAgentApi.create('api_key')
 
     invoice = Invoice(InvoiceConstant.INVOICE_TYPE_P_INVOICE)
 
@@ -29,7 +29,7 @@ def on_submit(doc, event_name):
     buyer.tax_payer = TaxPayerConstant.TAXPAYER_HAS_TAXNUMBER
     invoice.buyer = buyer
 
-    item = InvoiceItem('Test item 1', 100, 2, 'db', '20')
+    item = InvoiceItem('Test item 1', 100, 2.0, 'db', '20')
     item.net_price = 200
     item.vat_amount = 40
     item.gross_amount = 240

@@ -88,8 +88,8 @@ class SzamlaAgent:
 
     def build_cookie_filename(self):
         filename = 'cookie'
-        username = self.setting.get_username()
-        apikey = self.setting.get_api_key()
+        username = self.setting.username
+        apikey = self.setting.api_key
 
         if username:
             filename += "_" + hashlib.sha1(username.encode('utf-8')).hexdigest()

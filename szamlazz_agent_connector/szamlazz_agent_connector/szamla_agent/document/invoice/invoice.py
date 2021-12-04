@@ -95,24 +95,24 @@ class Invoice(Document):
         xml_name = request.xmlName
         if xml_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             data = self.__build_fields_data(request,
-                                            ['beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek'])
+                                            {'beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek'})
         elif xml_name == XmlSchema.XML_SCHEMA_DELETE_PROFORMA:
-            data = self.__build_fields_data(request, ['beallitasok', 'fejlec'])
+            data = self.__build_fields_data(request, {'beallitasok', 'fejlec'})
         elif xml_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:
-            data = self.__build_fields_data(request, ['beallitasok', 'fejlec', 'elado', 'vevo'])
+            data = self.__build_fields_data(request, {'beallitasok', 'fejlec', 'elado', 'vevo'})
         elif xml_name == XmlSchema.XML_SCHEMA_PAY_INVOICE:
-            data = self.__build_fields_data(request, ['beallitasok'])
+            data = self.__build_fields_data(request, {'beallitasok'})
             data = {**data, **self.__build_credits_xml_data()}
         elif xml_name == XmlSchema.XML_SCHEMA_REQUEST_INVOICE_XML \
                 or XmlSchema.XML_SCHEMA_REQUEST_INVOICE_PDF:
-            settings = self.__build_fields_data(request, ['beallitasok'])
+            settings = self.__build_fields_data(request, {'beallitasok'})
             data = settings['beallitasok']
         else:
             raise SzamlaAgentException(SzamlaAgentException.XML_SCHEMA_TYPE_NOT_EXISTS + f": {xml_name}")
 
         return data
 
-    def __build_fields_data(self, request, fields: list):
+    def __build_fields_data(self, request, fields):
         data = {}
 
         for key in fields:
@@ -126,8 +126,8 @@ class Invoice(Document):
                 value = self.seller.build_xml_data(request) if self.seller else []
             elif key == 'vevo':
                 value = self.buyer.build_xml_data(request) if self.buyer else []
-            # elif key == 'fuvarlevel':
-            #     value = self.waybill.build_xml_data(request) if self.waybill else []
+            elif key == 'fuvarlevel':
+                value = None  # self.waybill.build_xml_data(request) if self.waybill else []
             else:
                 raise SzamlaAgentException(SzamlaAgentException.XML_KEY_NOT_EXISTS + f": {key}")
 
@@ -138,14 +138,18 @@ class Invoice(Document):
 
     def __build_xml_items_data(self):
         data = {}
-        for key in self.items:
-            data[f"item{key}"] = data[key].build_xml_data()
+        count = 0
+        for item in self.items:
+            count += 1
+            data[f"item{count}"] = item.build_xml_data()
         return data
 
     def __build_credits_xml_data(self):
         data = {}
-        for key in self.credit_notes:
-            data[f"note{key}"] = data[key].build_xml_data()
+        count = 0
+        for item in self.credit_notes:
+            count += 1
+            data[f"note{count}"] = item.build_xml_data()
         return data
 
     def add_attachments(self, file_path):

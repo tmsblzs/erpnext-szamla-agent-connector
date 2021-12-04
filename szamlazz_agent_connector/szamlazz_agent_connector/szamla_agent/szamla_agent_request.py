@@ -3,6 +3,7 @@ import html
 import logging
 import random
 import re
+from io import BytesIO
 
 import mmap
 import os
@@ -13,7 +14,6 @@ import pycurl
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.agent_constant import AgentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.document import Document
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
@@ -41,6 +41,11 @@ class SzamlaAgentRequest:
 
     # Kérés engedélyezési módok
     REQUEST_AUTHORIZATION_BASIC_AUTH = 1
+
+    XMLNS_XSI_NAME = 'xmlns:xsi'
+    XMLNS_XSI_URL = 'http://www.w3.org/2001/XMLSchema-instance'
+
+    XSI_SCHEMA_LOCATION_NAME = 'xsi:schemaLocation'
 
     # @property
     # def agent(self):
@@ -71,39 +76,49 @@ class SzamlaAgentRequest:
         agent.write_log("Collecting XML data is starting", logging.DEBUG)
         xml_data = self.entity.build_xml_data(self)
 
-        xml_node = ET.Element()
-        xml = self.array_to_xml(xml_data, xml_node)
+        ET.register_namespace('', self.get_xml_ns())
+        xml_node = ET.Element("{" + self.get_xml_ns() + "}" + self.xmlName,
+                              **{SzamlaAgentRequest.XMLNS_XSI_NAME: SzamlaAgentRequest.XMLNS_XSI_URL},
+                              **{SzamlaAgentRequest.XSI_SCHEMA_LOCATION_NAME : self.get_schema_location()})
+        self.array_to_xml(xml_data, xml_node)
         try:
-            result = SzamlaAgentUtil.check_valid_xml(xml.save())
+            et = ET.ElementTree(xml_node)
+            f = BytesIO()
+            et.write(f,
+                     encoding='utf-8',
+                     xml_declaration=True,
+                     method='xml')
+            xml_text = f.getvalue()
+            result = SzamlaAgentUtil.check_valid_xml(xml_text)
             if not result:
                 raise SzamlaAgentException(
                     SzamlaAgentException.XML_NOT_VALID + f"in line {result[0].line}: {result[0].message}")
-            format_xml = SzamlaAgentUtil.format_xml(xml)
-            self.xmlData = format_xml
+            self.xmlData = xml_text
             agent.write_log("Collection XML data has done.", logging.DEBUG)
-            self.create_xml_file(format_xml)
+            self.create_xml_file(et)
         except Exception as ex:
             raise SzamlaAgentException(SzamlaAgentException.XML_DATA_BUILD_FAILED + format(ex))
 
     def array_to_xml(self, xml_data, xml_node):
         for key in xml_data:
-            if isinstance(xml_data[key], list):
+            if isinstance(xml_data[key], dict):
                 field_key = key
                 if key.find("item") != -1:
                     field_key = 'tetel'
                 if key.find("note") != -1:
                     field_key = 'kifizetes'
-                sub_node = ET.SubElement(xml_node, field_key)
+                sub_node = ET.SubElement(xml_node, "{" + self.get_xml_ns() + "}" + field_key)
                 self.array_to_xml(xml_data[key], sub_node)
             else:
                 if isinstance(xml_data[key], (int, float)):
-                    value = xml_data[key]
+                    value = str(xml_data[key])
                 elif self.cData:
                     value = html.escape(xml_data[key])
                 else:
                     value = 'true' if xml_data[key] else 'false'
 
-                ET.SubElement(xml_node, key, value)
+                sub_element = ET.SubElement(xml_node, "{" + self.get_xml_ns() + "}" + key)
+                sub_element.text = value
         return xml_node
 
     def send(self):
@@ -123,12 +138,14 @@ class SzamlaAgentRequest:
         return response
 
     def build_query(self):
-        self.delim = random.shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split())[0: 16]
+        letters = list("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        random.shuffle(letters)
+        self.delim = "".join(letters[0: 16])
         query_data = f'--{self.delim}{SzamlaAgentRequest.CRLF}'
         query_data += f'Content-Disposition: form-data; name="{self.fileName}"; ' \
                       f'filename="{self.fileName}"{SzamlaAgentRequest.CRLF}'
         query_data += f'Content-Type: text/xml{SzamlaAgentRequest.CRLF}{SzamlaAgentRequest.CRLF}'
-        query_data += self.xmlData + SzamlaAgentRequest.CRLF
+        query_data += self.xmlData.decode('utf-8') + SzamlaAgentRequest.CRLF
         query_data += f"--{self.delim}--{SzamlaAgentRequest.CRLF}"
         self.postFields = query_data
 
@@ -356,7 +373,10 @@ class SzamlaAgentRequest:
 
     def create_xml_file(self, xml):
         file_name = SzamlaAgentUtil.get_xml_file_name('request', self.xmlName, self.entity)
-        xml.write(file_name)
+        xml.write(file_name,
+                  xml_declaration=True,
+                  encoding="utf-8",
+                  method='xml')
 
         self.xmlFilePath = SzamlaAgentUtil.get_real_path(file_name)
         self.agent.write_log(f"XML save is succeeded: {self.xmlFilePath}", logging.DEBUG)
@@ -384,3 +404,10 @@ class SzamlaAgentRequest:
 
     def get_basic_auth_user_pwd(self):
         return self.agent.get_environment_auth_user() + ":" + self.agent.get_environment_auth_password()
+
+    def get_schema_location(self):
+        return f"{SzamlaAgentRequest.XML_BASE_URL}szamla/{self.xmlName} " \
+               f"{SzamlaAgentRequest.XML_BASE_URL}szamla/docs/xsds/{self.xsdDir}/{self.xmlName}.xsd"
+
+    def get_xml_ns(self):
+        return f"{SzamlaAgentRequest.XML_BASE_URL}{self.xmlName}"

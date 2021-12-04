@@ -34,9 +34,13 @@ class InvoiceHeader(DocumentHeader):
         self.invoice_template = InvoiceConstant.INVOICE_TEMPLATE_DEFAULT
         self.preview_pdf = False
         self.__required_fields = {}
+        super().__init__()
 
         if invoice_type:
             self.__set_default(invoice_type)
+
+    def is_e_invoice(self):
+        return self.invoice_type == InvoiceConstant.INVOICE_TYPE_E_INVOICE
 
     def __set_default(self, invoice_type):
         self.invoice = True

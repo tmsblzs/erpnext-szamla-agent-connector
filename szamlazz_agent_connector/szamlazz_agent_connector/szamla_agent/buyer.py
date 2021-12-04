@@ -47,7 +47,23 @@ class Buyer:
                 SzamlaAgentUtil.check_int_field(field, value, required, type(self).__name__)
             elif field == 'sendEmail':
                 SzamlaAgentUtil.check_bool_field(field, value, required, type(self).__name__)
-            else:
+            elif field == 'id' \
+                    or field == 'email' \
+                    or field == 'name' \
+                    or field == 'country' \
+                    or field == 'zipCode' \
+                    or field == 'city' \
+                    or field == 'address' \
+                    or field == 'taxNumber' \
+                    or field == 'taxNumberEU' \
+                    or field == 'postalName' \
+                    or field == 'postalCountry' \
+                    or field == 'postalZip' \
+                    or field == 'postalCity' \
+                    or field == 'postalAddress' \
+                    or field == 'signatoryName' \
+                    or field == 'phone' \
+                    or field == 'comment':
                 SzamlaAgentUtil.check_str_field(field, value, required, type(self).__name__)
         return value
 
