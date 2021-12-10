@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../erpnext/.idea/erpnext.iml" filepath="$PROJECT_DIR$/../erpnext/.idea/erpnext.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../frappe/.idea/frappe.iml" filepath="$PROJECT_DIR$/../frappe/.idea/frappe.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/szamlazz_agent_connector.iml" filepath="$PROJECT_DIR$/.idea/szamlazz_agent_connector.iml" />
+    </modules>
+  </component>
+</project>
