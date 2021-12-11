@@ -180,14 +180,14 @@ class SzamlaAgentRequest:
             ch = pycurl.Curl()
             ch.setopt(pycurl.SSL_VERIFYPEER, True)
             ch.setopt(pycurl.SSL_VERIFYHOST, 2)
-            ch.setopt(pycurl.CAINFO, agent.get_certification_file)
+            ch.setopt(pycurl.CAINFO, agent.get_certification_file())
             ch.setopt(pycurl.POST, True)
             ch.setopt(pycurl.HEADER, True)
-            ch.setopt(pycurl.INFOTYPE_HEADER_OUT, True)
+            # ch.setopt(pycurl.INFOTYPE_HEADER_OUT, True)
             ch.setopt(pycurl.VERBOSE, True)
 
             if self.is_basic_auth_request:
-                ch.setopt(pycurl.USERPWD, self.get_basic_auth_user_pwd)
+                ch.setopt(pycurl.USERPWD, self.get_basic_auth_user_pwd())
 
             post_fields = {self.xmlFilePath: (self.xmlFilePath, open(self.xmlFilePath), 'rb', 'text/xml')}
 

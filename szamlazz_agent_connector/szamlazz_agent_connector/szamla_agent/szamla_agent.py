@@ -12,13 +12,14 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
      SzamlaAgentRequest
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_setting import SzamlaAgentSetting
 # from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
 
 
 class SzamlaAgent:
     logLevel = logging.NOTSET
     logEmail = ''
 
-    callMethod  = ''  # SzamlaAgentRequest.CALL_METHOD_AUTO
+    callMethod  = SzamlaAgentRequest.CALL_METHOD_CURL
     certificationFileName = AgentConstant.CERTIFICATION_FILENAME
     cookieFileName = AgentConstant.COOKIE_FILENAME
 
@@ -158,12 +159,12 @@ class SzamlaAgent:
             logger.log(log_level, message)
         return True
 
-    # def get_certification_file(self):
-    #     file_name = self.certificationFileName
-    #     if not file_name:
-    #         file_name = SzamlaAgent.CERTIFICATION_FILENAME
-    #     return SzamlaAgentUtil.get_abs_path(SzamlaAgent.CERTIFICATION_PATH, file_name)
-    #
+    def get_certification_file(self):
+        file_name = self.certificationFileName
+        if not file_name:
+            file_name = AgentConstant.CERTIFICATION_FILENAME
+        return SzamlaAgentUtil.get_abs_path(AgentConstant.CERTIFICATION_PATH, file_name)
+
     # @staticmethod
     # def get_by_instance_id(instance_id):
     #     index = SzamlaAgent.get_hash(instance_id)
