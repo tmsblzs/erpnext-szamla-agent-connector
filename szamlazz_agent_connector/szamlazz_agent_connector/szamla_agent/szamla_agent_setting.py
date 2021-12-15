@@ -1,3 +1,4 @@
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.response_constant import ResponseConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
@@ -16,7 +17,7 @@ class SzamlaAgentSetting:
                  api_key,
                  download_pdf=True,
                  copies_count=DOWNLOAD_COPIES_COUNT,
-                 response_type=SzamlaAgentResponse.RESULT_AS_TEXT,
+                 response_type=ResponseConstant.RESULT_AS_TEXT,
                  aggregator=''):
         self.username = username
         self.password = password
@@ -75,7 +76,7 @@ class SzamlaAgentSetting:
             'valaszVerzio': self.response_type,
             'aggregator': self.aggregator,
             'guardian': self.guardian,
-            'eszamla': request.entity.header.is_e_invoice(),
+            'eszamla': 'true' if request.entity.header.is_e_invoice() else 'false',
             'additiv': request.entity.is_additive,
             'szamlaszam': request.entity.header.invoice_number,
             'rendelesSzam': request.entity.header.order_number

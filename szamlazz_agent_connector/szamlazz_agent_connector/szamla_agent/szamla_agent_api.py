@@ -1,5 +1,6 @@
 import logging
 
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.response_constant import ResponseConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.response.szamla_agent_response import \
     SzamlaAgentResponse
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent import \
@@ -11,7 +12,7 @@ class SzamlaAgentApi(SzamlaAgent):
     def create(api_key,
                download_pdf=True,
                log_level=logging.DEBUG,
-               response_type=SzamlaAgentResponse.RESULT_AS_TEXT,
+               response_type=ResponseConstant.RESULT_AS_TEXT,
                aggregator=""):
         index = SzamlaAgent.get_hash(api_key)
 

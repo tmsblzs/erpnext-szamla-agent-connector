@@ -9,6 +9,9 @@ import mmap
 import os
 
 import xml.etree.ElementTree as ET
+from urllib.parse import urlencode
+from lxml import etree
+
 import pycurl
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.agent_constant import AgentConstant
@@ -21,6 +24,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 class SzamlaAgentRequest:
     HTTP_OK = 200
+    LF = "\n"
     CRLF = "\r\n"
 
     # Számla Agent XML séma alapértelmezett URL
@@ -47,6 +51,7 @@ class SzamlaAgentRequest:
 
     XSI_SCHEMA_LOCATION_NAME = 'xsi:schemaLocation'
 
+
     # @property
     # def agent(self):
     #     return self.__agent
@@ -69,6 +74,7 @@ class SzamlaAgentRequest:
         self.xmlFilePath = ''
         self.delim = ''
         self.postFields = ''
+        self.responseHeaders = {}
 
     def build_xml_data(self):
         self.set_xml_file_data(self.type)
@@ -86,16 +92,23 @@ class SzamlaAgentRequest:
             f = BytesIO()
             et.write(f,
                      encoding='utf-8',
-                     xml_declaration=True,
+                     xml_declaration=False,
                      method='xml')
             xml_text = f.getvalue()
+            f.close()
+            xml = etree.XML(xml_text, etree.XMLParser(remove_blank_text=True))
+            for parent in xml.xpath('//*[./*]'):
+                parent[:] = sorted(parent, key=lambda x: x.tag)
+            xml_text = etree.tostring(xml, pretty_print=True)
             result = SzamlaAgentUtil.check_valid_xml(xml_text)
             if not result:
                 raise SzamlaAgentException(
                     SzamlaAgentException.XML_NOT_VALID + f"in line {result[0].line}: {result[0].message}")
-            self.xmlData = xml_text
+            self.xmlData = xml_text.replace(bytearray(SzamlaAgentRequest.LF, 'utf-8'), bytearray('', 'utf-8'))
+
             agent.write_log("Collection XML data has done.", logging.DEBUG)
-            self.create_xml_file(et)
+            et = ET.fromstring(xml_text)
+            self.create_xml_file(ET.ElementTree(et))
         except Exception as ex:
             raise SzamlaAgentException(SzamlaAgentException.XML_DATA_BUILD_FAILED + format(ex))
 
@@ -111,7 +124,7 @@ class SzamlaAgentRequest:
                 self.array_to_xml(xml_data[key], sub_node)
             else:
                 if isinstance(xml_data[key], (int, float)):
-                    value = str(xml_data[key])
+                    value = str(xml_data[key]).lower()
                 elif self.cData:
                     value = html.escape(xml_data[key])
                 else:
@@ -178,31 +191,41 @@ class SzamlaAgentRequest:
         try:
             agent = self.agent
             ch = pycurl.Curl()
+            ch.setopt(pycurl.URL, agent.apiUrl)
             ch.setopt(pycurl.SSL_VERIFYPEER, True)
             ch.setopt(pycurl.SSL_VERIFYHOST, 2)
             ch.setopt(pycurl.CAINFO, agent.get_certification_file())
             ch.setopt(pycurl.POST, True)
             ch.setopt(pycurl.HEADER, True)
-            # ch.setopt(pycurl.INFOTYPE_HEADER_OUT, True)
+            ch.setopt(pycurl.HEADERFUNCTION, self.get_headers_from_response)
+            # ch.setopt(pycurl.HEADER, True)
             ch.setopt(pycurl.VERBOSE, True)
 
-            if self.is_basic_auth_request:
+            if self.is_basic_auth_request():
                 ch.setopt(pycurl.USERPWD, self.get_basic_auth_user_pwd())
 
-            post_fields = {self.xmlFilePath: (self.xmlFilePath, open(self.xmlFilePath), 'rb', 'text/xml')}
+            post_fields = [('fileupload',
+                            (
+                                pycurl.FORM_FILE, self.xmlFilePath,
+                                pycurl.FORM_FILENAME, self.fileName,
+                                pycurl.FORM_CONTENTTYPE, 'text/xml'
+                            ))]
 
-            http_headers = {
-                'charset': AgentConstant.CHARSET,
-                'API': AgentConstant.API_VERSION}
+            # post_fields = self.postFields
+
+            http_headers = [
+                f'charset: {AgentConstant.CHARSET}',
+                f'API: {AgentConstant.API_VERSION}'
+            ]
 
             custom_http_headers = agent.customHttpHeaders
             if custom_http_headers:
                 for key in custom_http_headers:
-                    http_headers[key] = custom_http_headers[key]
+                    http_headers[key] = f'{key}: {custom_http_headers[key]}'
 
             ch.setopt(pycurl.HTTPHEADER, http_headers)
 
-            if self.is_attachments:
+            if self.is_attachments():
                 attachments = self.entity.attachments
                 if attachments:
                     for idx, item in attachments:
@@ -218,7 +241,8 @@ class SzamlaAgentRequest:
                                 post_fields[f'attachfile{idx}'] = attachment
                                 agent.write_log(f'{idx} document is attached: {item}', logging.DEBUG)
 
-            ch.setopt(pycurl.POSTFIELDS, post_fields)
+            # ch.setopt(pycurl.ENCODING, 'utf-8')
+            ch.setopt(pycurl.HTTPPOST, post_fields)  # self.postFields.encode('utf-8'))
             ch.setopt(pycurl.TIMEOUT, SzamlaAgentRequest.REQUEST_TIMEOUT)
 
             if agent.cookieFileName:
@@ -236,22 +260,23 @@ class SzamlaAgentRequest:
             agent.write_log(f"CURL data send is starting: {post_fields}", logging.DEBUG)
             result = ch.perform()
 
-            header_size = ch.getinfo(pycurl.HEADER_SIZE)
-            header = result[0:header_size]
-            headers = re.split('/\n|\r\n?/', header)
-            body = result[header_size:]
+            error = ch.errstr()
+
+            headers = self.responseHeaders  # re.split('/\n|\r\n?/', header)
+            # body = result[header_size:]
 
             response = {
-                'headers': self.get_headers_from_response(headers),
-                'body': body
+                'headers': headers,
+                'body': 'body'
             }
 
-            error = ch.errstr()
             if error:
                 raise SzamlaAgentException(error)
             else:
                 keys = ''.join(headers)
-                if response['headers']['Content-Type'] == 'application/pdf' or not re.search('/(szlahu_)/', keys):
+                if (response['headers']['content-type']
+                        and response['headers']['content-type'] == 'application/pdf') \
+                        or not re.search('/(szlahu_)/', keys):
                     message = response['headers']
                 else:
                     message = response
@@ -284,18 +309,18 @@ class SzamlaAgentRequest:
     #     except Exception as ex:
     #         raise ex
 
-    def get_headers_from_response(self, headerContent):
-        headers = {}
-        for index in headerContent:
-            if SzamlaAgentUtil.is_not_blank(headerContent[index]):
-                if index == 0:
-                    headers['http_code'] = headerContent[index]
-                else:
-                    pos = headerContent[index].search(':')
-                    if pos != -1:
-                        text = headerContent[index].split(':')
-                        headers[text[0]] = text[1]
-        return headers
+    def get_headers_from_response(self, header_line):
+        header_line = header_line.decode('iso-8859-1')
+        if ':' not in header_line:
+            return
+
+        name, value = header_line.split(':', 1)
+        name = name.strip()
+        value = value.strip()
+        name = name.lower()
+        value = value.lower()
+
+        self.responseHeaders[name] = value
 
     def get_cookie_file_path(self):
         file_name = self.agent.cookieFileName
@@ -392,11 +417,12 @@ class SzamlaAgentRequest:
         #     return Document.DOCUMENT_TYPE_INVOICE
         raise SzamlaAgentException(SzamlaAgentException.XML_SCHEMA_TYPE_NOT_EXISTS + f": {self.xmlName}")
 
-    # def is_attachments(self):
-    #     entity = self.entity
-    #     if isinstance(entity, Invoice):
-    #         return len(entity.attachments) > 0
-    #     return False
+    def is_attachments(self):
+        entity = self.entity
+        from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
+        if isinstance(entity, Invoice):
+            return len(entity.attachments) > 0
+        return False
 
     def is_basic_auth_request(self):
         agent = self.agent

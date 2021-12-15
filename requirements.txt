@@ -1,8 +1,11 @@
-frappe
+frappe~=14.0.0.dev0
 ET
 et
 et-xmlfile
 regex
 random2
 fmmap
-pycurl
+pycurl~=7.44.1
+
+setuptools~=56.0.0
+lxml~=4.6.4

@@ -15,10 +15,6 @@ from base64 import b64encode
 
 
 class SzamlaAgentResponse:
-    RESULT_AS_TEXT = 1
-    RESULT_AS_XML = 2
-    RESULT_AS_TAXPAYER_XML = 3
-
     response = None
     httpCode = None
     errorMsg = ""

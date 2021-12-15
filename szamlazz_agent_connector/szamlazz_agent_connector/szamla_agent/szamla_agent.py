@@ -6,6 +6,7 @@ import logging
 # from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
 #     SzamlaAgentException
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.agent_constant import AgentConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.response_constant import ResponseConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.response.szamla_agent_response import \
      SzamlaAgentResponse
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import \
@@ -66,7 +67,7 @@ class SzamlaAgent:
                  api_key,
                  download_pdf=True,
                  log_level=logging.DEBUG,
-                 response_type=SzamlaAgentResponse.RESULT_AS_TEXT,
+                 response_type=ResponseConstant.RESULT_AS_TEXT,
                  aggregator=""
                  ):
         self.setting = SzamlaAgentSetting(username, password, api_key, download_pdf,
@@ -75,7 +76,9 @@ class SzamlaAgent:
         self.response = None
         self.logLevel = log_level
         self.cookieFileName = self.build_cookie_filename()
-        self.environment = {}
+        self.environment = None
+        self.customHttpHeaders = None
+        self.apiUrl = AgentConstant.API_URL
         self.write_log(f"Szamla Agent initialization finished (apiKey: '{api_key}')", logging.DEBUG)
 
     # @staticmethod
@@ -88,7 +91,7 @@ class SzamlaAgent:
     #     return SzamlaAgent.agents[index]
 
     def build_cookie_filename(self):
-        filename = 'cookie'
+        filename = 'cookie/cookie'
         username = self.setting.username
         apikey = self.setting.api_key
 
@@ -181,25 +184,25 @@ class SzamlaAgent:
     def get_hash(username):
         return hashlib.sha1(username.encode('utf-8')).hexdigest()
 
-    # def set_environment(self, name, url, authorization: dict):
-    #     self.environment = {
-    #         'name': name,
-    #         'url': url,
-    #         'auth': authorization
-    #     }
-    #
-    # def has_environment_auth(self):
-    #     return self.environment and isinstance(self.environment, dict) and \
-    #            self.environment['auth']
-    #
-    # def get_environment_auth_type(self):
-    #     return self.environment['auth']['type'] if self.has_environment_auth() and \
-    #                                                self.environment['auth']['type'] else 0
-    #
-    # def get_environment_auth_user(self):
-    #     return self.environment['auth']['user'] if self.has_environment_auth() and \
-    #                                                self.environment['auth']['user'] else None
-    #
-    # def get_environment_auth_password(self):
-    #     return self.environment['auth']['password'] if self.has_environment_auth() and \
-    #                                                    self.environment['auth']['password'] else None
+    def set_environment(self, name, url, authorization: dict):
+        self.environment = {
+            'name': name,
+            'url': url,
+            'auth': authorization
+        }
+
+    def has_environment_auth(self):
+        return self.environment and isinstance(self.environment, dict) and \
+               self.environment['auth']
+
+    def get_environment_auth_type(self):
+        return self.environment['auth']['type'] if self.has_environment_auth() and \
+                                                   self.environment['auth']['type'] else 0
+
+    def get_environment_auth_user(self):
+        return self.environment['auth']['user'] if self.has_environment_auth() and \
+                                                   self.environment['auth']['user'] else None
+
+    def get_environment_auth_password(self):
+        return self.environment['auth']['password'] if self.has_environment_auth() and \
+                                                       self.environment['auth']['password'] else None
