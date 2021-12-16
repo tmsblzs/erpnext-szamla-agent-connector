@@ -33,3 +33,6 @@ class InvoiceConstant:
 
     # Retró kéziszámla számlakép
     INVOICE_TEMPLATE_RETRO = 'SzlaTomb'
+
+    # Szamlaertesito kezbesitese sikertelen
+    INVOICE_NOTIFICATION_SEND_FAILED = 56

@@ -95,17 +95,17 @@ class Invoice(Document):
         xml_name = request.xmlName
         if xml_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             data = self.__build_fields_data(request,
-                                            {'beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek'})
+                                            ('beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek'))
         elif xml_name == XmlSchema.XML_SCHEMA_DELETE_PROFORMA:
-            data = self.__build_fields_data(request, {'beallitasok', 'fejlec'})
+            data = self.__build_fields_data(request, ('beallitasok', 'fejlec'))
         elif xml_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:
-            data = self.__build_fields_data(request, {'beallitasok', 'fejlec', 'elado', 'vevo'})
+            data = self.__build_fields_data(request, ('beallitasok', 'fejlec', 'elado', 'vevo'))
         elif xml_name == XmlSchema.XML_SCHEMA_PAY_INVOICE:
-            data = self.__build_fields_data(request, {'beallitasok'})
+            data = self.__build_fields_data(request, ('beallitasok'))
             data = {**data, **self.__build_credits_xml_data()}
         elif xml_name == XmlSchema.XML_SCHEMA_REQUEST_INVOICE_XML \
                 or XmlSchema.XML_SCHEMA_REQUEST_INVOICE_PDF:
-            settings = self.__build_fields_data(request, {'beallitasok'})
+            settings = self.__build_fields_data(request, ('beallitasok'))
             data = settings['beallitasok']
         else:
             raise SzamlaAgentException(SzamlaAgentException.XML_SCHEMA_TYPE_NOT_EXISTS + f": {xml_name}")

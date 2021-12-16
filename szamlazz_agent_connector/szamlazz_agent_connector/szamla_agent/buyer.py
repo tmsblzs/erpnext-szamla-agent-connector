@@ -1,4 +1,5 @@
 import inspect
+from collections import OrderedDict
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer_ledger import BuyerLedger
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
@@ -78,34 +79,54 @@ class Buyer:
         if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             self.__required_fields = {'name': "", 'zip': "", 'city': "", 'address': ""}
 
-            data = {
-                'nev': self.name,
-                'orszag': self.country,
-                'irsz': self.zip_code,
-                'telepules': self.city,
-                'cim': self.address,
-                'email': self.email,
-                'sendEmail': self.send_email,
-                'adoalany': self.tax_payer,
-                'adoszam': self.tax_number,
-                'adoszamEU': self.tax_number_EU,
-                'postazasiNev': self.postal_name,
-                'postazasiOrszag': self.postal_country,
-                'postazasiIrsz': self.postal_zip,
-                'postazasiTelepules': self.postal_city,
-                'postazasiCim': self.postal_address,
-                'vevokonyv': self.ledger_data.get_xml_data if self.ledger_data else "",
-                'azonosito': self.id,
-                'alairoNeve': self.signatory_name,
-                'telefonszam': self.phone,
-                'megjegyzes': self.comment,
-            }
+            data = OrderedDict([
+                ('nev', self.name),
+                ('orszag', self.country),
+                ('irsz', self.zip_code),
+                ('telepules', self.city),
+                ('cim', self.address)
+            ])
+
+            if self.email:
+                data['email'] = self.email
+            if self.send_email:
+                data['sendEmail'] = self.send_email
+            if self.tax_payer:
+                data['adoalany'] = self.tax_payer
+            if self.tax_number:
+                data['adoszam'] = self.tax_number
+            if self.tax_number_EU:
+                data['adoszamEU'] = self.tax_number_EU
+            if self.postal_name:
+                data['postazasiNev'] = self.postal_name
+            if self.postal_country:
+                data['postazasiOrszag'] = self.postal_country
+            if self.postal_zip:
+                data['postazasiIrsz'] = self.postal_zip
+            if self.postal_city:
+                data['postazasiTelepules'] = self.postal_city
+            if self.postal_address:
+                data['postazasiCim'] = self.postal_address
+            if self.ledger_data:
+                data['vevokonyv'] = self.ledger_data.get_xml_data
+            if self.id:
+                data['azonosito'] = self.id
+            if self.signatory_name:
+                data['alairoNeve'] = self.signatory_name
+            if self.phone:
+                data['telefonszam'] = self.phone
+            if self.comment:
+                data['megjegyzes'] = self.comment
+
         elif request_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:
-            data = {
-                'email': self.email,
-                'adoszam': self.tax_number,
-                'adoszamEU': self.tax_number_EU
-            }
+            data = OrderedDict()
+            if self.email:
+                data['email'] = self.email
+            if self.tax_number:
+                data['adoszam'] = self.tax_number
+            if self.tax_number_EU:
+                data['adoszamEU'] = self.tax_number_EU
+
         else:
             raise SzamlaAgentException(f"Not existing XML schema: {request_name}")
 

@@ -9,3 +9,4 @@ pycurl~=7.44.1
 
 setuptools~=56.0.0
 lxml~=4.6.4
+xmldict~=0.4.1

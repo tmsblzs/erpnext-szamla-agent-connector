@@ -24,42 +24,53 @@ class SzamlaAgent:
     certificationFileName = AgentConstant.CERTIFICATION_FILENAME
     cookieFileName = AgentConstant.COOKIE_FILENAME
 
-    # @property
-    # def setting(self):
-    #     return self.__setting
-    #
-    # @setting.setter
-    # def setting(self, value):
-    #     if not isinstance(value, SzamlaAgentSetting):
-    #         raise TypeError("setting must be an SzamlaAgentSetting")
-    #     self.__setting = value
+    @property
+    def setting(self):
+        return self.__setting
 
-    # @property
-    # def request(self):
-    #     return self.__request
-    #
-    # @request.setter
-    # def request(self, value):
-    #     if not isinstance(value, SzamlaAgentRequest):
-    #         raise TypeError("setting must be an SzamlaAgentRequest")
-    #     self.__request = value
+    @setting.setter
+    def setting(self, value):
+        if value and not isinstance(value, SzamlaAgentSetting):
+            raise TypeError("setting must be an SzamlaAgentSetting")
+        self.__setting = value
 
-    # @property
-    # def response(self):
-    #     return self.__response
-    #
-    # @response.setter
-    # def response(self, value):
-    #     if not isinstance(value, SzamlaAgentResponse):
-    #         raise TypeError("setting must be an SzamlaAgentResponse")
-    #     self.__response = value
-    #
-    # # use as static variable
+    @property
+    def request(self):
+        return self.__request
+
+    @request.setter
+    def request(self, value):
+        if value and not isinstance(value, SzamlaAgentRequest):
+            raise TypeError("setting must be an SzamlaAgentRequest")
+        self.__request = value
+
+    @property
+    def response(self):
+        return self.__response
+
+    @response.setter
+    def response(self, value):
+        if value and not isinstance(value, SzamlaAgentResponse):
+            raise TypeError("setting must be an SzamlaAgentResponse")
+        self.__response = value
+
+    @property
+    def response_type(self):
+        return self.setting.response_type
+
+    @response_type.setter
+    def response_type(self, value):
+        self.setting.response_type = value
+
+    @property
+    def download_pdf(self):
+        return self.setting.download_pdf
+
+    @download_pdf.setter
+    def download_pdf(self, value):
+        self.setting.download_pdf = value
+
     agents = {}
-    #
-    # customHttpHeaders = {}
-    # apiUrl = API_URL
-    # pdfFileSave = True
 
     def __init__(self,
                  username,
@@ -79,6 +90,7 @@ class SzamlaAgent:
         self.environment = None
         self.customHttpHeaders = None
         self.apiUrl = AgentConstant.API_URL
+        self.pdfFileSave = True
         self.write_log(f"Szamla Agent initialization finished (apiKey: '{api_key}')", logging.DEBUG)
 
     # @staticmethod
@@ -113,6 +125,18 @@ class SzamlaAgent:
 
     def generate_invoice(self, invoice):
         return self.generate_document('generateInvoice', invoice)
+
+    def get_request_entity_header(self):
+        header = None
+
+        request = self.request
+        entity = request.entity
+
+        from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
+        if entity and isinstance(entity, Invoice):
+            header = entity.header
+
+        return header
 
     # def generate_pre_payment_invoice(self, invoice):
     #     return self.generate_invoice(invoice)

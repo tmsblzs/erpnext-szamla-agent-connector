@@ -1,4 +1,5 @@
 import inspect
+from collections import OrderedDict
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.invoice_constant import InvoiceConstant
@@ -104,31 +105,51 @@ class InvoiceHeader(DocumentHeader):
             'items': ""
         }
 
-        data = {
-            'keltDatum': self.issue_date,
-            'teljesitesDatum': self.fulfillment,
-            'fizetesiHataridoDatum': self.payment_due,
-            'fizmod': self.payment_method,
-            'penznem': self.currency,
-            'szamlaNyelve': self.language,
-            'megjegyzes': self.comment,
-            'arfolyamBank': self.exchange_bank,
-            'arfolyam': self.exchange_rate,
-            'rendelesSzam': self.order_number,
-            'dijbekeroSzamlaszam': self.proforma_number,
-            'elolegszamla': self.pre_payment,
-            'vegszamla': self.final,
-            'helyesbitoszamla': self.corrective,
-            'helyesbitettSzamlaszam': self.correctived_number,
-            'dijbekero': self.proforma,
-            'szallitolevel': self.delivery_note,
-            'logoExtra': self.extra_logo,
-            'szamlaszamElotag': self.prefix,
-            'fizetendoKorrekcio': self.correction_to_pay,
-            'fizetve': self.paid,
-            'arresAfa': self.profit_vat,
-            'szamlaSablon': self.invoice_template,
-            'elonezetpdf': self.preview_pdf
-        }
+        data = OrderedDict([
+            ('keltDatum', self.issue_date),
+            ('teljesitesDatum', self.fulfillment),
+            ('fizetesiHataridoDatum', self.payment_due),
+            ('fizmod', self.payment_method),
+            ('penznem', self.currency),
+            ('szamlaNyelve', self.language)
+        ])
+
+        if self.comment:
+            data['megjegyzes'] = self.comment
+        if self.exchange_bank:
+            data['arfolyamBank'] = self.exchange_bank
+        if self.exchange_rate:
+            data['arfolyam'] = SzamlaAgentUtil.float_format(self.exchange_rate)
+        if self.order_number:
+            data['rendelesSzam'] = self.order_number
+        if self.proforma_number:
+            data['dijbekeroSzamlaszam'] = self.proforma_number
+        if self.pre_payment:
+            data['elolegszamla'] = self.pre_payment
+        if self.final:
+            data['vegszamla'] = self.final
+        if self.corrective:
+            data['helyesbitoszamla'] = self.corrective
+        if self.correctived_number:
+            data['helyesbitettSzamlaszam'] = self.correctived_number
+        if self.proforma:
+            data['dijbekero'] = self.proforma
+        if self.delivery_note:
+            data['szallitolevel'] = self.delivery_note
+        if self.exchange_bank:
+            data['logoExtra'] = self.extra_logo
+        if self.prefix:
+            data['szamlaszamElotag'] = self.prefix
+        if self.correction_to_pay:
+            data['fizetendoKorrekcio'] = self.correction_to_pay
+        if self.paid:
+            data['fizetve'] = self.paid
+        if self.profit_vat:
+            data['arresAfa'] = self.profit_vat
+        if self.invoice_template:
+            data['szamlaSablon'] = self.invoice_template
+        if self.preview_pdf:
+            data['elonezetpdf'] = self.preview_pdf
+
         self.__check_fields()
         return data

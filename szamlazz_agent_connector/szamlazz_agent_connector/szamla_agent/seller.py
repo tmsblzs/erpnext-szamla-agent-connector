@@ -1,4 +1,6 @@
+import collections
 import inspect
+from collections import OrderedDict
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
@@ -39,15 +41,18 @@ class Seller:
         request_name = request.xmlName
 
         if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
-            data = {
-                'bank': self.bank,
-                'bankszamlaszam': self.bank_account,
-                'alaironeve': self.signatory_name
-            }
+            data = OrderedDict()
+
+            if self.bank:
+                data['bank'] = self.bank
+            if self.bank_account:
+                data['bankszamlaszam'] = self.bank_account
+            if self.signatory_name:
+                data['alaironeve'] = self.signatory_name
 
             email_data = self.__get_xml_email_data()
             if email_data:
-                data = {**data, **email_data}
+                data.update(email_data)
         elif request_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:
             data = self.__get_xml_email_data()
         else:
@@ -55,9 +60,13 @@ class Seller:
         return data
 
     def __get_xml_email_data(self):
-        data = {
-            'emailReplyto': self.email_reply_to,
-            'emailTargy': self.email_subject,
-            'emailSzoveg': self.email_content
-        }
+        data = OrderedDict()
+
+        if self.email_reply_to:
+            data['emailReplyto'] = self.email_reply_to
+        if self.email_subject:
+            data['emailTargy'] = self.email_subject
+        if self.email_content:
+            data['emailSzoveg'] = self.email_content
+
         return data

@@ -96,10 +96,10 @@ class SzamlaAgentRequest:
                      method='xml')
             xml_text = f.getvalue()
             f.close()
-            xml = etree.XML(xml_text, etree.XMLParser(remove_blank_text=True))
-            for parent in xml.xpath('//*[./*]'):
-                parent[:] = sorted(parent, key=lambda x: x.tag)
-            xml_text = etree.tostring(xml, pretty_print=True)
+            # xml = etree.XML(xml_text, etree.XMLParser(remove_blank_text=True))
+            # for parent in xml.xpath('//*[./*]'):
+            #     parent[:] = sorted(parent, key=lambda x: x.tag)
+            # xml_text = etree.tostring(xml, pretty_print=True)
             result = SzamlaAgentUtil.check_valid_xml(xml_text)
             if not result:
                 raise SzamlaAgentException(
@@ -107,8 +107,9 @@ class SzamlaAgentRequest:
             self.xmlData = xml_text.replace(bytearray(SzamlaAgentRequest.LF, 'utf-8'), bytearray('', 'utf-8'))
 
             agent.write_log("Collection XML data has done.", logging.DEBUG)
-            et = ET.fromstring(xml_text)
-            self.create_xml_file(ET.ElementTree(et))
+            # et = ET.fromstring(xml_text)
+            # self.create_xml_file(ET.ElementTree(et))
+            self.create_xml_file(et)
         except Exception as ex:
             raise SzamlaAgentException(SzamlaAgentException.XML_DATA_BUILD_FAILED + format(ex))
 
@@ -192,26 +193,24 @@ class SzamlaAgentRequest:
             agent = self.agent
             ch = pycurl.Curl()
             ch.setopt(pycurl.URL, agent.apiUrl)
-            ch.setopt(pycurl.SSL_VERIFYPEER, True)
+            ch.setopt(pycurl.SSL_VERIFYPEER, 1)
             ch.setopt(pycurl.SSL_VERIFYHOST, 2)
             ch.setopt(pycurl.CAINFO, agent.get_certification_file())
-            ch.setopt(pycurl.POST, True)
-            ch.setopt(pycurl.HEADER, True)
+            ch.setopt(pycurl.POST, 1)
+            ch.setopt(pycurl.HEADER, 1)
             ch.setopt(pycurl.HEADERFUNCTION, self.get_headers_from_response)
-            # ch.setopt(pycurl.HEADER, True)
-            ch.setopt(pycurl.VERBOSE, True)
+            ch.setopt(pycurl.VERBOSE, 1)
 
             if self.is_basic_auth_request():
                 ch.setopt(pycurl.USERPWD, self.get_basic_auth_user_pwd())
 
-            post_fields = [('fileupload',
-                            (
+            file_upload = [(self.fileName, (
                                 pycurl.FORM_FILE, self.xmlFilePath,
                                 pycurl.FORM_FILENAME, self.fileName,
                                 pycurl.FORM_CONTENTTYPE, 'text/xml'
-                            ))]
+            ))]
 
-            # post_fields = self.postFields
+            post_fields = {}
 
             http_headers = [
                 f'charset: {AgentConstant.CHARSET}',
@@ -241,14 +240,15 @@ class SzamlaAgentRequest:
                                 post_fields[f'attachfile{idx}'] = attachment
                                 agent.write_log(f'{idx} document is attached: {item}', logging.DEBUG)
 
-            # ch.setopt(pycurl.ENCODING, 'utf-8')
-            ch.setopt(pycurl.HTTPPOST, post_fields)  # self.postFields.encode('utf-8'))
+            ch.setopt(pycurl.HTTPPOST, file_upload)
+            if len(post_fields) > 0:
+                ch.setopt(pycurl.POSTFIELDS, urlencode(post_fields))
             ch.setopt(pycurl.TIMEOUT, SzamlaAgentRequest.REQUEST_TIMEOUT)
 
             if agent.cookieFileName:
                 cookie_file = self.get_cookie_file_path()
-                if os.path.exists(cookie_file) and os.path.getsize(cookie_file) > 0 and self.file_get_contents(
-                        cookie_file, b'curl'):
+                if os.path.exists(cookie_file) and os.path.getsize(cookie_file) > 0 \
+                        and self.file_get_contents(cookie_file, b'curl'):
                     with open(cookie_file, 'a') as file:
                         file.write('')
                         agent.write_log("Cookie has changed", logging.DEBUG)
@@ -258,18 +258,21 @@ class SzamlaAgentRequest:
                     ch.setopt(pycurl.COOKIEFILE, cookie_file)
 
             agent.write_log(f"CURL data send is starting: {post_fields}", logging.DEBUG)
-            result = ch.perform()
+            buffer = BytesIO()
+            ch.setopt(pycurl.WRITEFUNCTION, buffer.write)
+            ch.perform()
 
             error = ch.errstr()
 
-            headers = self.responseHeaders  # re.split('/\n|\r\n?/', header)
-            # body = result[header_size:]
-
+            headers = self.responseHeaders
+            header_size = ch.getinfo(pycurl.HEADER_SIZE)
+            buffer.seek(header_size)
             response = {
                 'headers': headers,
-                'body': 'body'
+                'body': buffer.read()
             }
 
+            buffer.close()
             if error:
                 raise SzamlaAgentException(error)
             else:
@@ -280,7 +283,7 @@ class SzamlaAgentRequest:
                     message = response['headers']
                 else:
                     message = response
-                response['headers']['Schema-Type'] = self.get_xml_schema_type()
+                response['headers']['schema-type'] = self.get_xml_schema_type()
                 agent.write_log(f'CURL data is successfully ended {message}', logging.DEBUG)
 
             ch.close()
@@ -330,7 +333,7 @@ class SzamlaAgentRequest:
 
     def file_get_contents(self, file_name, text):
         with open(file_name, 'rb', 0) as f:
-            with mmap.mmap(fileinput.fileno(), 0, access=mmap.ACCESS_READ) as s:
+            with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as s:
                 if s.find(text) != -1:
                     return True
         return False

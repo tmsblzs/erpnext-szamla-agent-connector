@@ -5,6 +5,6 @@ class AgentConstant:
     COOKIE_FILENAME = 'cookie/cookie.txt'
     CERTIFICATION_FILENAME = 'cacert.pem'
     CERTIFICATION_PATH = 'cert/'
-    PDF_FILE_SAVE_PATH = './pdf'
+    PDF_FILE_SAVE_PATH = 'pdf/'
     XML_FILE_SAVE_PATH = 'xmls/'
     ATTACHMENTS_SAVE_PATH = './attachments'
