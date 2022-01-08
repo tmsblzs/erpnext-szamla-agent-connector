@@ -10,7 +10,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 
 def on_submit(doc, event_name):
-    agent = SzamlaAgentApi.create('fzz87q95czd5fzz87qbkrwpcfzz87qd88fz8fzz87q')
+    agent = SzamlaAgentApi.create('api-key')
     # agent.setting.response_type = ResponseConstant.RESULT_AS_XML
 
     invoice = Invoice(InvoiceConstant.INVOICE_TYPE_P_INVOICE)
