@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-01-08 20:08:27.796349",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "buyer",
+  "createdat",
+  "sum",
+  "invoicedate",
+  "issuccessfullysend",
+  "pdffile"
+ ],
+ "fields": [
+  {
+   "fieldname": "buyer",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Buyer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "createdat",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Created At",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "sum",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sum",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "invoicedate",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Invoice Date",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "issuccessfullysend",
+   "fieldtype": "Check",
+   "label": "Is Successfully Send",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pdffile",
+   "fieldtype": "Attach Image",
+   "label": "Pdf File",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-01-08 20:08:27.796349",
+ "modified_by": "Administrator",
+ "module": "Szamlazz Agent Connector",
+ "name": "SzamlazzAgentConnectorInvoice",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
