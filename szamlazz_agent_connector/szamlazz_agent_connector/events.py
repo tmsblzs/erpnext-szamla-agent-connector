@@ -1,3 +1,7 @@
+import ast
+import json
+
+import frappe
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer import Buyer
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.invoice_constant import InvoiceConstant
@@ -10,31 +14,43 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 
 def on_submit(doc, event_name):
-    agent = SzamlaAgentApi.create('api-key')
+
+    connection_settings = frappe.get_doc('SzamlazzAgentConnectorSetting')
+
+    agent = SzamlaAgentApi.create(connection_settings.apikey)
     # agent.setting.response_type = ResponseConstant.RESULT_AS_XML
 
     invoice = Invoice(InvoiceConstant.INVOICE_TYPE_P_INVOICE)
 
     header = invoice.header
     header.payment_method = DocumentConstant.PAYMENT_METHOD_TRANSFER
-    header.fulfillment = '2021-11-14'
-    header.payment_due = '2021-11-30'
+    header.fulfillment = doc.fullfilment_date
+    header.payment_due = doc.due_date
     header.prefix = ''
     header.preview_pdf = False
     header.invoice_template = InvoiceConstant.INVOICE_TEMPLATE_DEFAULT
 
-    seller = Seller('OTP', '11738008-20850223')
+    company_name = doc.company
+    company = frappe.get_doc('Company', company_name)
+    bank_account = frappe.get_doc('Bank Account', 'PENSAV-BankAccount - OTP BANK Nyrt')
+    seller = Seller(bank_account.bank, bank_account.bank_account_no)
     invoice.seller = seller
 
-    buyer = Buyer('Kovacs Bt', '2030', 'Erd', 'Tarnoki utca 23')
-    buyer.tax_number = '11111111-1-11'
+    customer_name = doc.customer
+    customer = frappe.get_doc('Customer', customer_name)
+    customer_address = frappe.get_doc('Address', doc.customer_address)
+    buyer = Buyer(customer_name, customer_address.pincode, customer_address.city, customer_address.address_line1)
+    buyer.tax_number = customer.tax_id
     buyer.tax_payer = TaxPayerConstant.TAXPAYER_HAS_TAXNUMBER
     invoice.buyer = buyer
 
-    item = InvoiceItem('Test item 1', 100, 2.0, 'db', '20')
-    item.net_price = 200
-    item.vat_amount = 40
-    item.gross_amount = 240
-    invoice.add_item(item)
+    for item in doc.items:
+        tax = ast.literal_eval(item.item_tax_rate)
+        tax_rate = tax['VAT - PS']
+        invoice_item = InvoiceItem(item.item_name, item.net_rate, item.stock_qty, item.stock_uom, str(tax_rate))
+        invoice_item.net_price = item.net_amount
+        invoice_item.vat_amount = item.net_amount * (tax_rate / 100)
+        invoice_item.gross_amount = invoice_item.net_price + invoice_item.vat_amount
+        invoice.add_item(invoice_item)
 
     result = agent.generate_invoice(invoice)
