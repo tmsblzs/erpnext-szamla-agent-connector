@@ -116,8 +116,8 @@ class SzamlaAgent:
 
     def send_request(self, request):
         self.request = request
-        response = SzamlaAgentResponse(self, request.send())
-        return response.handle_response()
+        self.response = SzamlaAgentResponse(self, request.send())
+        return self.response.handle_response()
 
     def generate_document(self, request_type, document):
         request = SzamlaAgentRequest(self, request_type, document)

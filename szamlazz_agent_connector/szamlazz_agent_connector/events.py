@@ -1,7 +1,16 @@
 import ast
+import hashlib
 import json
+import mimetypes
+import os
+import re
+
+import dateutil.utils
+import pdfkit
+from requests import Response
 
 import frappe
+from frappe.utils.pdf import get_pdf
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer import Buyer
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.invoice_constant import InvoiceConstant
@@ -53,4 +62,58 @@ def on_submit(doc, event_name):
         invoice_item.gross_amount = invoice_item.net_price + invoice_item.vat_amount
         invoice.add_item(invoice_item)
 
-    result = agent.generate_invoice(invoice)
+    agent.generate_invoice(invoice)
+    result = agent.response
+
+    pdf_file = frappe.new_doc("File")
+    pdf_file.file_name = result.get_pdf_file_name(False)
+    pdf_file.file_size = len(result.pdfFile)
+    pdf_file.is_private = True
+    pdf_file.content_hash = hashlib.md5(result.pdfFile).hexdigest()
+    pdf_file.attached_to_doctype = "SzamlazzAgentConnectorInvoice"
+    pdf_file.attached_to_field = "pdf_file"
+    pdf_file.insert()
+
+    request = agent.request
+    xml_file = frappe.new_doc("File")
+    xml_file.file_name = os.path.basename(request.xmlFilePath)
+    xml_file.file_size = len(request.xmlData)
+    xml_file.is_private = True
+    xml_file.content_hash = hashlib.md5(request.xmlData).hexdigest()
+    xml_file.attached_to_doctype = "SzamlazzAgentConnectorInvoice"
+    xml_file.attached_to_field = "xml_file"
+    xml_file.insert()
+
+    agent_invoice = frappe.new_doc("SzamlazzAgentConnectorInvoice")
+    agent_invoice.buyer = doc.customer
+    agent_invoice.created_at = dateutil.utils.today()
+    agent_invoice.pdf_file = pdf_file.name
+    agent_invoice.invoice_date = doc.posting_date
+    agent_invoice.sum = doc.base_net_total
+    agent_invoice.is_successfully_send = True
+    agent_invoice.own_invoice_number = doc.name
+    agent_invoice.szamlazz_invoice_number = os.path.splitext(pdf_file.file_name)[0]
+    agent_invoice.sales_invoice = doc.name
+    agent_invoice.insert()
+
+    pdf_file.attached_to_name = agent_invoice.name
+    pdf_file.save()
+    xml_file.attached_to_name = agent_invoice.name
+    xml_file.save()
+
+    frappe.response.filename = pdf_file.file_name
+    frappe.response.filecontent = pdf_file.get_content()
+    frappe.response.type = "download"
+
+    response = Response()
+    response.mimetype = (
+        frappe.response.get("content-type")
+        or mimetypes.guess_type(frappe.response["filename"])[0]
+        or "application/unknown"
+    )
+    response.headers["Content-Disposition"] = (
+        f'{frappe.response.get("display_content_as", "attachment")};'
+        f' filename="{frappe.response["filename"].replace(" ","_")}"'
+    ).encode('utf-8')
+    response.data = frappe.response["filecontent"]
+    return response

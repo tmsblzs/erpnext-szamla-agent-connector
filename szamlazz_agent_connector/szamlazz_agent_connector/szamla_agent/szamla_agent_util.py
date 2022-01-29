@@ -15,7 +15,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.sz
 class SzamlaAgentUtil:
     DEFAULT_ADDED_DAYS = 8
 
-    DEFAULT_BASE_PATH = "/var/local"
+    DEFAULT_BASE_PATH = "/home/frappe/frappe-bench/sites/erp.dev.pensav.hu/public/files"
 
     DATE_FORMAT_DATE = "%Y-%m-%d"
 

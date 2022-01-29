@@ -7,11 +7,14 @@
  "engine": "InnoDB",
  "field_order": [
   "buyer",
-  "createdat",
+  "created_at",
   "sum",
-  "invoicedate",
-  "issuccessfullysend",
-  "pdffile"
+  "invoice_date",
+  "is_successfully_send",
+  "pdf_file",
+  "own_invoice_number",
+  "szamlazz_invoice_number",
+  "sales_invoice"
  ],
  "fields": [
   {
@@ -19,14 +22,6 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Buyer",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "createdat",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Created At",
    "read_only": 1,
    "reqd": 1
   },
@@ -39,7 +34,15 @@
    "reqd": 1
   },
   {
-   "fieldname": "invoicedate",
+   "fieldname": "created_at",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Created At",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "invoice_date",
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Invoice Date",
@@ -48,21 +51,38 @@
   },
   {
    "default": "0",
-   "fieldname": "issuccessfullysend",
+   "fieldname": "is_successfully_send",
    "fieldtype": "Check",
    "label": "Is Successfully Send",
    "read_only": 1
   },
   {
-   "fieldname": "pdffile",
-   "fieldtype": "Attach Image",
+   "fieldname": "pdf_file",
+   "fieldtype": "Link",
    "label": "Pdf File",
+   "options": "File",
    "read_only": 1
+  },
+  {
+   "fieldname": "own_invoice_number",
+   "fieldtype": "Data",
+   "label": "Own Invoice Number"
+  },
+  {
+   "fieldname": "szamlazz_invoice_number",
+   "fieldtype": "Data",
+   "label": "Szamlazz.hu Invoice Number"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-01-08 20:08:27.796349",
+ "modified": "2022-01-29 22:14:37.222259",
  "modified_by": "Administrator",
  "module": "Szamlazz Agent Connector",
  "name": "SzamlazzAgentConnectorInvoice",
