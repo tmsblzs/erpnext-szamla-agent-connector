@@ -1,0 +1,43 @@
+{
+ "category": "Modules",
+ "charts": [],
+ "creation": "2022-04-16 14:59:49.440606",
+ "developer_mode_only": 0,
+ "disable_user_customization": 0,
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "extends": "Selling",
+ "extends_another_page": 1,
+ "hide_custom": 1,
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "label": "Szamlazz Agent Invoices",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Szamlazz Agent",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Invoices",
+   "link_to": "SzamlazzAgentConnectorInvoice",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2022-04-16 15:02:03.031959",
+ "modified_by": "Administrator",
+ "module": "Szamlazz Agent Connector",
+ "name": "Szamlazz Agent Invoices",
+ "owner": "Administrator",
+ "pin_to_bottom": 0,
+ "pin_to_top": 0,
+ "shortcuts": []
+}
