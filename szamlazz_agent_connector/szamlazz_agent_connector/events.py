@@ -9,6 +9,7 @@ import dateutil.utils
 import pdfkit
 from requests import Response
 
+import erpnext
 import frappe
 from frappe.utils.pdf import get_pdf
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer import Buyer
@@ -41,7 +42,8 @@ def on_submit(doc, event_name):
 
     company_name = doc.company
     company = frappe.get_doc('Company', company_name)
-    bank_account = frappe.get_doc('Bank Account', 'PENSAV-BankAccount - OTP BANK Nyrt')
+    bank_accounts = frappe.get_all('Bank Account',  filters={'account': company.default_bank_account})
+    bank_account = frappe.get_doc('Bank Account', bank_accounts[0])
     seller = Seller(bank_account.bank, bank_account.bank_account_no)
     invoice.seller = seller
 
