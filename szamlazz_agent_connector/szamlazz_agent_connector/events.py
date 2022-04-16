@@ -68,7 +68,6 @@ def on_submit(doc, event_name):
     pdf_file = frappe.new_doc("File")
     pdf_file.file_name = result.get_pdf_file_name(False)
     pdf_file.file_size = len(result.pdfFile)
-    pdf_file.is_private = True
     pdf_file.content_hash = hashlib.md5(result.pdfFile).hexdigest()
     pdf_file.attached_to_doctype = "SzamlazzAgentConnectorInvoice"
     pdf_file.attached_to_field = "pdf_file"
@@ -78,7 +77,6 @@ def on_submit(doc, event_name):
     xml_file = frappe.new_doc("File")
     xml_file.file_name = os.path.basename(request.xmlFilePath)
     xml_file.file_size = len(request.xmlData)
-    xml_file.is_private = True
     xml_file.content_hash = hashlib.md5(request.xmlData).hexdigest()
     xml_file.attached_to_doctype = "SzamlazzAgentConnectorInvoice"
     xml_file.attached_to_field = "xml_file"
@@ -101,19 +99,13 @@ def on_submit(doc, event_name):
     xml_file.attached_to_name = agent_invoice.name
     xml_file.save()
 
+
+@frappe.whitelist()
+def download(doc_name):
+    agent_invoice = frappe.get_last_doc("SzamlazzAgentConnectorInvoice",
+                                        filters={"own_invoice_number": doc_name})
+    pdf_file = frappe.get_last_doc("File",
+                                   filters={"attached_to_name": agent_invoice.name, "attached_to_field": "pdf_file"})
     frappe.response.filename = pdf_file.file_name
     frappe.response.filecontent = pdf_file.get_content()
-    frappe.response.type = "download"
-
-    response = Response()
-    response.mimetype = (
-        frappe.response.get("content-type")
-        or mimetypes.guess_type(frappe.response["filename"])[0]
-        or "application/unknown"
-    )
-    response.headers["Content-Disposition"] = (
-        f'{frappe.response.get("display_content_as", "attachment")};'
-        f' filename="{frappe.response["filename"].replace(" ","_")}"'
-    ).encode('utf-8')
-    response.data = frappe.response["filecontent"]
-    return response
+    frappe.response.type = "pdf"

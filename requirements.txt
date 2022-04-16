@@ -1,4 +1,4 @@
-frappe~=14.0.0.dev0
+# frappe   # https://github.com/frappe/frappe is installed during bench-init
 ET
 et
 et-xmlfile
