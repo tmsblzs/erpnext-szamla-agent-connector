@@ -1,0 +1,43 @@
+{
+ "category": "Modules",
+ "charts": [],
+ "creation": "2022-04-16 14:49:50.399032",
+ "developer_mode_only": 0,
+ "disable_user_customization": 0,
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "extends": "Integrations",
+ "extends_another_page": 1,
+ "hide_custom": 1,
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "label": "Szamlazz Agent Connector",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Szamlazz Agent Connector",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Settings",
+   "link_to": "SzamlazzAgentConnectorSetting",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2022-04-16 14:55:58.732079",
+ "modified_by": "Administrator",
+ "module": "Szamlazz Agent Connector",
+ "name": "Szamlazz Agent Connector",
+ "owner": "Administrator",
+ "pin_to_bottom": 0,
+ "pin_to_top": 0,
+ "shortcuts": []
+}

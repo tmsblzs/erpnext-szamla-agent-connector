@@ -31,7 +31,7 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"Sales Invoice": "public/js/sales_invoice.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -97,6 +97,11 @@ app_license = "MIT"
 #	}
 # }
 
+doc_events = {
+	"Sales Invoice": {
+		"on_submit": "szamlazz_agent_connector.szamlazz_agent_connector.events.on_submit"
+	}
+}
 # Scheduled Tasks
 # ---------------
 

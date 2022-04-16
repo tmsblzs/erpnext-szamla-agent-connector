@@ -1,0 +1,2 @@
+class BuyerLedger:
+    pass
