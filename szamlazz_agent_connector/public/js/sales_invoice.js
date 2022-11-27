@@ -7,7 +7,7 @@ frappe.ui.form.on('Sales Invoice',{
     },
 
     on_submit(frm){
-        window.open("/api/method/szamlazz_agent_connector.szamlazz_agent_connector.events.download?doc_name=" + frm.doc.name)
+        window.open("/api/method/szamlazz_agent_connector.szamlazz_agent_connector.api.sales_invoice.download?doc_name=" + frm.doc.name)
     }
     }
 )

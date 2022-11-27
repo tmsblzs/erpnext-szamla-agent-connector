@@ -99,7 +99,8 @@ doctype_js = {"Sales Invoice": "public/js/sales_invoice.js"}
 
 doc_events = {
 	"Sales Invoice": {
-		"on_submit": "szamlazz_agent_connector.szamlazz_agent_connector.events.on_submit"
+		"on_submit": "szamlazz_agent_connector.szamlazz_agent_connector.events.sales_invoice.on_submit",
+		"on_cancel": "szamlazz_agent_connector.szamlazz_agent_connector.events.sales_invoice.on_cancel"
 	}
 }
 # Scheduled Tasks

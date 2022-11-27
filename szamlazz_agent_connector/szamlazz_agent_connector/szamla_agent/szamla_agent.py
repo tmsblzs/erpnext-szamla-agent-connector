@@ -126,6 +126,9 @@ class SzamlaAgent:
     def generate_invoice(self, invoice):
         return self.generate_document('generateInvoice', invoice)
 
+    def generate_reverse_invoice(self, reverse_invoice):
+        return self.generate_document('generateReverseInvoice', reverse_invoice)
+
     def get_request_entity_header(self):
         header = None
 

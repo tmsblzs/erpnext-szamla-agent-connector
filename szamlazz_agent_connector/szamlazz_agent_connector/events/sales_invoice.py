@@ -1,26 +1,22 @@
-import ast
 import hashlib
-import json
-import mimetypes
 import os
-import re
 
 import dateutil.utils
-import pdfkit
-from requests import Response
 
-import erpnext
 import frappe
-from frappe.utils.pdf import get_pdf
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer import Buyer
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.invoice_constant import InvoiceConstant
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.response_constant import ResponseConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.tax_payer_constant import TaxPayerConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.reverse_invoice import \
+    ReverseInvoice
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.header.reverse_invoice_header import \
+    ReverseInvoiceHeader
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.item.invoice_item import InvoiceItem
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.seller import Seller
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_api import SzamlaAgentApi
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
 
 
 def on_submit(doc, event_name):
@@ -40,19 +36,10 @@ def on_submit(doc, event_name):
     header.preview_pdf = False
     header.invoice_template = InvoiceConstant.INVOICE_TEMPLATE_DEFAULT
 
-    company_name = doc.company
-    company = frappe.get_doc('Company', company_name)
-    bank_accounts = frappe.get_all('Bank Account',  filters={'account': company.default_bank_account})
-    bank_account = frappe.get_doc('Bank Account', bank_accounts[0])
-    seller = Seller(bank_account.bank, bank_account.bank_account_no)
+    seller = _get_seller(doc)
     invoice.seller = seller
 
-    customer_name = doc.customer
-    customer = frappe.get_doc('Customer', customer_name)
-    customer_address = frappe.get_doc('Address', doc.customer_address)
-    buyer = Buyer(customer_name, customer_address.pincode, customer_address.city, customer_address.address_line1)
-    buyer.tax_number = customer.tax_id
-    buyer.tax_payer = TaxPayerConstant.TAXPAYER_HAS_TAXNUMBER
+    buyer = _get_buyer(doc)
     invoice.buyer = buyer
 
     for item in doc.items:
@@ -109,12 +96,39 @@ def on_submit(doc, event_name):
     xml_file.save()
 
 
-@frappe.whitelist()
-def download(doc_name):
-    agent_invoice = frappe.get_last_doc("SzamlazzAgentConnectorInvoice",
-                                        filters={"own_invoice_number": doc_name})
-    pdf_file = frappe.get_last_doc("File",
-                                   filters={"attached_to_name": agent_invoice.name, "attached_to_field": "pdf_file"})
-    frappe.response.filename = pdf_file.file_name
-    frappe.response.filecontent = pdf_file.get_content()
-    frappe.response.type = "pdf"
+def _get_buyer(doc):
+    customer_name = doc.customer
+    customer = frappe.get_doc('Customer', customer_name)
+    customer_address = frappe.get_doc('Address', doc.customer_address)
+    buyer = Buyer(customer_name, customer_address.pincode, customer_address.city, customer_address.address_line1)
+    buyer.tax_number = customer.tax_id
+    buyer.tax_payer = TaxPayerConstant.TAXPAYER_HAS_TAXNUMBER
+    return buyer
+
+
+def _get_seller(doc):
+    company_name = doc.company
+    company = frappe.get_doc('Company', company_name)
+    bank_accounts = frappe.get_all('Bank Account', filters={'account': company.default_bank_account})
+    bank_account = frappe.get_doc('Bank Account', bank_accounts[0])
+    seller = Seller(bank_account.bank, bank_account.bank_account_no)
+    return seller
+
+
+def on_cancel(doc, event_name):
+    connection_settings = frappe.get_doc('SzamlazzAgentConnectorSetting')
+    agent_invoice = frappe.get_all('SzamlazzAgentConnectorInvoice',  filters={'own_invoice_number': doc.name})
+    if not agent_invoice:
+        raise TypeError("Szamlazz Agent Invoice not found!")
+    invoice = frappe.get_doc("SzamlazzAgentConnectorInvoice", agent_invoice[0])
+    if not invoice:
+        raise TypeError("Invoice not found!")
+    reverse_invoice = ReverseInvoice()
+    header = reverse_invoice.header
+    header.invoice_number = invoice.szamlazz_invoice_number.upper()
+    # header.issue_date = SzamlaAgentUtil.get_date_str(invoice.invoice_date)
+    # header.fulfillment = SzamlaAgentUtil.get_date_str(doc.fullfilment_date)
+    header.invoice_template = InvoiceConstant.INVOICE_TEMPLATE_DEFAULT
+
+    agent = SzamlaAgentApi.create(connection_settings.apikey)
+    agent.generate_reverse_invoice(reverse_invoice)

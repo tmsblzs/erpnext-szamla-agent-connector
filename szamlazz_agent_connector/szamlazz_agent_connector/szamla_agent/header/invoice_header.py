@@ -85,6 +85,9 @@ class InvoiceHeader(DocumentHeader):
             return value
 
     def __check_fields(self):
+        self.check_fields()
+
+    def check_fields(self):
         fields = inspect.getmembers(InvoiceHeader, lambda a: not (inspect.isroutine(a)))
         fields = [a for a in fields if not (a[0].startswith('__') and a[0].endswith('__'))]
         for item in fields:
