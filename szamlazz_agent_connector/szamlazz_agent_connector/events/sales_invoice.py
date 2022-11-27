@@ -30,7 +30,7 @@ def on_submit(doc, event_name):
 
     header = invoice.header
     header.payment_method = DocumentConstant.PAYMENT_METHOD_TRANSFER
-    header.fulfillment = doc.fullfilment_date
+    header.fulfillment = doc.fulfillment_date
     header.payment_due = doc.due_date
     header.prefix = ''
     header.preview_pdf = False
@@ -126,8 +126,6 @@ def on_cancel(doc, event_name):
     reverse_invoice = ReverseInvoice()
     header = reverse_invoice.header
     header.invoice_number = invoice.szamlazz_invoice_number.upper()
-    # header.issue_date = SzamlaAgentUtil.get_date_str(invoice.invoice_date)
-    # header.fulfillment = SzamlaAgentUtil.get_date_str(doc.fullfilment_date)
     header.invoice_template = InvoiceConstant.INVOICE_TEMPLATE_DEFAULT
 
     agent = SzamlaAgentApi.create(connection_settings.apikey)
