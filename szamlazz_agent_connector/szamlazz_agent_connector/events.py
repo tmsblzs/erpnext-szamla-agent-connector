@@ -56,8 +56,13 @@ def on_submit(doc, event_name):
     invoice.buyer = buyer
 
     for item in doc.items:
-        tax = ast.literal_eval(item.item_tax_rate)
-        tax_rate = tax['VAT - PS']
+        stock_item = frappe.get_doc("Item", item.item_code)
+        tax = [x for x in stock_item.taxes if x.tax_category == 'ÁFA']
+        tax_rate = 0
+        if tax:
+            tax_template = frappe.get_doc("Item Tax Template", tax[0].item_tax_template)
+            if tax_template:
+                tax_rate = tax_template.taxes[0].tax_rate
         invoice_item = InvoiceItem(item.item_name, item.net_rate, item.stock_qty, item.stock_uom, str(tax_rate))
         invoice_item.net_price = item.net_amount
         invoice_item.vat_amount = item.net_amount * (tax_rate / 100)
@@ -73,6 +78,7 @@ def on_submit(doc, event_name):
     pdf_file.content_hash = hashlib.md5(result.pdfFile).hexdigest()
     pdf_file.attached_to_doctype = "SzamlazzAgentConnectorInvoice"
     pdf_file.attached_to_field = "pdf_file"
+    pdf_file.file_url = ""
     pdf_file.insert()
 
     request = agent.request
@@ -82,6 +88,7 @@ def on_submit(doc, event_name):
     xml_file.content_hash = hashlib.md5(request.xmlData).hexdigest()
     xml_file.attached_to_doctype = "SzamlazzAgentConnectorInvoice"
     xml_file.attached_to_field = "xml_file"
+    xml_file.file_url = ""
     xml_file.insert()
 
     agent_invoice = frappe.new_doc("SzamlazzAgentConnectorInvoice")
