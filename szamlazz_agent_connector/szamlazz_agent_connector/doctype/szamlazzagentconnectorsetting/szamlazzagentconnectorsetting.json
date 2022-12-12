@@ -6,8 +6,11 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "section_break0",
   "companyname",
-  "apikey"
+  "apikey",
+  "section_break1",
+  "mode_of_payments"
  ],
  "fields": [
   {
@@ -23,12 +26,30 @@
    "in_list_view": 1,
    "label": "Api Key",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break0",
+   "fieldtype": "Section Break",
+   "label": "Agent Settings"
+  },
+  {
+   "fieldname": "section_break1",
+   "fieldtype": "Section Break",
+   "label": "Payments Settings"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "mode_of_payments",
+   "fieldtype": "Table",
+   "label": "Mode of Payments",
+   "options": "SzamlaAgentConnectorModeOfPayments",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-01-08 20:26:01.743028",
+ "modified": "2022-12-13 00:15:11.261836",
  "modified_by": "Administrator",
  "module": "Szamlazz Agent Connector",
  "name": "SzamlazzAgentConnectorSetting",

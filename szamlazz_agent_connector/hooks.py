@@ -57,7 +57,7 @@ doctype_js = {"Sales Invoice": "public/js/sales_invoice.js"}
 # ------------
 
 # before_install = "szamlazz_agent_connector.install.before_install"
-# after_install = "szamlazz_agent_connector.install.after_install"
+after_install = "szamlazz_agent_connector.install.after_install"
 
 # Desk Notifications
 # ------------------
