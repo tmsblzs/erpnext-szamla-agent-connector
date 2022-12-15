@@ -22,7 +22,7 @@
  "modified": "2022-12-12 23:33:26.963298",
  "modified_by": "Administrator",
  "module": "Szamlazz Agent Connector",
- "name": "SzamlaAgentConnectorPaymentMethodType",
+ "name": "SzamlazzAgentConnectorPaymentMethodType",
  "owner": "Administrator",
  "permissions": [
   {

@@ -7,19 +7,12 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break0",
-  "companyname",
+  "company",
   "apikey",
   "section_break1",
   "mode_of_payments"
  ],
  "fields": [
-  {
-   "fieldname": "companyname",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Company Name",
-   "reqd": 1
-  },
   {
    "fieldname": "apikey",
    "fieldtype": "Data",
@@ -42,14 +35,22 @@
    "fieldname": "mode_of_payments",
    "fieldtype": "Table",
    "label": "Mode of Payments",
-   "options": "SzamlaAgentConnectorModeOfPayments",
+   "options": "SzamlazzAgentConnectorModeOfPayments",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company Name",
+   "options": "Company",
    "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-12-13 00:15:11.261836",
+ "modified": "2022-12-15 17:45:16.834097",
  "modified_by": "Administrator",
  "module": "Szamlazz Agent Connector",
  "name": "SzamlazzAgentConnectorSetting",

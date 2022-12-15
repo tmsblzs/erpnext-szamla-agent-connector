@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestSzamlaAgentConnectorPaymentMethodType(unittest.TestCase):
+class TestSzamlazzAgentConnectorPaymentMethodType(unittest.TestCase):
 	pass
