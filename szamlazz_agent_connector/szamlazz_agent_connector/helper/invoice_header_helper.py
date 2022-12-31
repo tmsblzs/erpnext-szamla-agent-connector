@@ -26,9 +26,10 @@ class InvoiceHeaderHelper:
 
     @staticmethod
     def get_payment_mode(mode_of_payment):
-        agent_mode_of_payment = frappe.get_all('SzamlazzAgentConnectorModeOfPayment',
-                                               filters={'mode_of_payment': mode_of_payment})
+        agent_mode_of_payment = frappe.get_all('SzamlazzAgentConnectorModeOfPayments',
+                                               filters={'mode_of_payment_name': mode_of_payment})
         if agent_mode_of_payment:
-            return agent_mode_of_payment[0].agent_payment_method_type
-        else:
-            return DocumentConstant.PAYMENT_METHOD_CASH
+            agent_payment_method_type = frappe.get_doc('SzamlazzAgentConnectorModeOfPayments', agent_mode_of_payment[0])
+            if agent_payment_method_type:
+                return agent_payment_method_type.agent_payment_method_type
+        return DocumentConstant.PAYMENT_METHOD_CASH

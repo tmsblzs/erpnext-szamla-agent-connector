@@ -12,16 +12,16 @@ def on_submit(doc, event_name):
     agent = SzamlaAgentApiHelper.create()
     agent.generate_invoice(invoice)
 
-    _save_result(doc, agent.response)
+    _save_result(doc, agent.request, agent.response)
 
 
-def _save_result(doc, result):
+def _save_result(doc, request, result):
     pdf_file = PdfFileHelper.create_and_insert_from_agent_result(result)
     agent_invoice = AgentInvoiceHelper.create_and_insert_from_sales_invoice(doc, pdf_file.name,
                                                                             result.get_pdf_file_name(False))
     pdf_file.attached_to_name = agent_invoice.name
     pdf_file.save()
-    XmlFileHelper.create_and_insert_from_agent_result(agent_invoice.name)
+    XmlFileHelper.create_and_insert_from_agent_result(request, agent_invoice.name)
 
 
 def on_cancel(doc, event_name):

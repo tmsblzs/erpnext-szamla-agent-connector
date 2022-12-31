@@ -1,6 +1,6 @@
 import os
 
-import dateutil
+import datetime
 
 import frappe
 
@@ -10,7 +10,7 @@ class AgentInvoiceHelper:
     def create_and_insert_from_sales_invoice(sales_invoice, pdf_file_name, result_file_name):
         agent_invoice = frappe.new_doc("SzamlazzAgentConnectorInvoice")
         agent_invoice.buyer = sales_invoice.customer
-        agent_invoice.created_at = dateutil.utils.today()
+        agent_invoice.created_at = datetime.date.today()
         agent_invoice.pdf_file = pdf_file_name
         agent_invoice.invoice_date = sales_invoice.posting_date
         agent_invoice.sum = sales_invoice.base_net_total

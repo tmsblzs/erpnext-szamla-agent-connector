@@ -15,7 +15,7 @@ def after_install():
 
 def insert_doc_payment_method_type(name):
     doc = frappe.get_doc({
-        "doctype": "SzamlaAgentConnectorPaymentMethodType",
+        "doctype": "SzamlazzAgentConnectorPaymentMethodType",
         "name": name,
         "label": name,
     })

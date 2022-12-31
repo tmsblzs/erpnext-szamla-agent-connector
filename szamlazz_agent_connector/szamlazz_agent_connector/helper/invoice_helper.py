@@ -13,6 +13,6 @@ class InvoiceHelper:
         InvoiceHeaderHelper.fill_from_sales_invoice(invoice.header, sales_invoice)
         invoice.seller = SellerHelper.get_from_sales_invoice(sales_invoice)
         invoice.buyer = BuyerHelper.get_buyer_from_sales_invoice(sales_invoice)
-        SalesItemsHelper.add_items_to_invoice(invoice, sales_invoice, sales_invoice.tax_category)
+        SalesItemsHelper.add_items_to_invoice(invoice, sales_invoice.items, sales_invoice.tax_category)
         return invoice
 
