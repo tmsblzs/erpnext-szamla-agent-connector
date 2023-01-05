@@ -26,7 +26,8 @@ class SzamlaAgentUtil:
     @staticmethod
     def get_default_base_path():
         site_name = get_site_name(frappe.local.request.host)
-        return f"~/frappe-bench/sites/{site_name}/public/files"
+        path_home = Path.home()
+        return f"{path_home}/frappe-bench/sites/{site_name}/public/files"
 
     @staticmethod
     def add_days_to_date(count, date=None):
