@@ -7,6 +7,8 @@ from pathlib import Path
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
+import frappe
+from frappe.utils import get_site_name
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.agent_constant import AgentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
@@ -15,16 +17,16 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.sz
 class SzamlaAgentUtil:
     DEFAULT_ADDED_DAYS = 8
 
-    DEFAULT_BASE_PATH = "/home/frappe/frappe-bench/sites/erp.dev.pensav.hu/public/files"
-
     DATE_FORMAT_DATE = "%Y-%m-%d"
 
     DATE_FORMAT_DATETIME = "%Y-%m-d %H:%M:%S"
 
     DATE_FORMAT_TIMESTAMP = 'timestamp'
 
-    basePath = DEFAULT_BASE_PATH
-
+    @staticmethod
+    def get_default_base_path():
+        site_name = get_site_name(frappe.local.request.host)
+        return f"/home/frappe/frappe-bench/sites/{site_name}/public/files"
 
     @staticmethod
     def add_days_to_date(count, date=None):
@@ -93,10 +95,10 @@ class SzamlaAgentUtil:
 
     @staticmethod
     def get_base_path():
-        if not SzamlaAgentUtil.basePath:
-            return SzamlaAgentUtil.get_real_path(SzamlaAgentUtil.DEFAULT_BASE_PATH)
+        if not SzamlaAgentUtil.get_default_base_path():
+            return SzamlaAgentUtil.get_real_path(SzamlaAgentUtil.get_default_base_path())
         else:
-            return SzamlaAgentUtil.get_real_path(SzamlaAgentUtil.basePath)
+            return SzamlaAgentUtil.get_real_path(SzamlaAgentUtil.get_default_base_path())
 
     @staticmethod
     def number_format(num, places=0):
