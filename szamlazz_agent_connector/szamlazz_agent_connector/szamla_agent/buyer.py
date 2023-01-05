@@ -1,5 +1,6 @@
 import inspect
 from collections import OrderedDict
+from html import escape
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer_ledger import BuyerLedger
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
@@ -20,7 +21,7 @@ class Buyer:
 
     def __init__(self, name="", zip_code="", city="", address=""):
         self.id = 0
-        self.name = name
+        self.name = escape(name)
         self.country = ""
         self.zip_code = zip_code
         self.city = city
