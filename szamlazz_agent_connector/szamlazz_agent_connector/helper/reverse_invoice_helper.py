@@ -12,3 +12,4 @@ class ReverseInvoiceHelper:
         invoice = AgentInvoiceHelper.get_by_name(agent_invoice[0])
         reverse_invoice = ReverseInvoice()
         ReverseInvoiceHeaderHelper.fill_from_sales_invoice(reverse_invoice.header, invoice)
+        return reverse_invoice
