@@ -11,5 +11,6 @@ setuptools~=56.0.0
 lxml~=4.6.4
 xmldict~=0.4.1
 
-frappe~=13.45.2
+frappe~=13.45.0
+erpnext~=13.42.1
 python-dateutil~=2.8.2
