@@ -314,8 +314,8 @@ class SzamlaAgentResponse:
         self.responseObj = obj
 
         if obj.is_error() or self.has_invoice_notification_send_error():
-            self.errorCode = obj.errorCode
-            self.errorMsg = obj.errorMessage
+            self.errorCode = obj.error_code
+            self.errorMsg = obj.error_message
 
     def has_invoice_notification_send_error(self):
         if self.is_agent_invoice_response() and self.responseObj.has_invoice_notification_send_error():

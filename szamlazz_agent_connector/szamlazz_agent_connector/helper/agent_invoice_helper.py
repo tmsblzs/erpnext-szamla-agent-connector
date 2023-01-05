@@ -33,4 +33,5 @@ class AgentInvoiceHelper:
         invoice = frappe.get_doc("SzamlazzAgentConnectorInvoice", agent_invoice)
         if not invoice:
             raise TypeError("Invoice not found!")
+        return invoice
 
