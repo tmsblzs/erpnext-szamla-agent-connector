@@ -13,6 +13,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 class InvoiceHeader(DocumentHeader):
     def __init__(self, invoice_type=InvoiceConstant.INVOICE_TYPE_P_INVOICE):
+        super().__init__()
         self.invoice_number = ""
         self.invoice_type = 0
         self.issue_date = ""
@@ -35,15 +36,14 @@ class InvoiceHeader(DocumentHeader):
         self.invoice_template = InvoiceConstant.INVOICE_TEMPLATE_DEFAULT
         self.preview_pdf = False
         self.__required_fields = {}
-        super().__init__()
 
         if invoice_type:
-            self.__set_default(invoice_type)
+            self._set_default(invoice_type)
 
     def is_e_invoice(self):
         return self.invoice_type == InvoiceConstant.INVOICE_TYPE_E_INVOICE
 
-    def __set_default(self, invoice_type):
+    def _set_default(self, invoice_type):
         self.invoice = True
         self.invoice_type = invoice_type
         self.issue_date = SzamlaAgentUtil.get_today_str()
@@ -53,7 +53,7 @@ class InvoiceHeader(DocumentHeader):
         self.fulfillment = SzamlaAgentUtil.get_today_str()
         self.payment_due = SzamlaAgentUtil.add_days_to_date(SzamlaAgentUtil.DEFAULT_ADDED_DAYS)
 
-    def __check_field(self, field, value):
+    def _check_field(self, field, value):
         if hasattr(self, field):
             required = True if field in self.__required_fields else False
             if field == 'issueDate' \
@@ -84,14 +84,14 @@ class InvoiceHeader(DocumentHeader):
                 SzamlaAgentUtil.check_str_field(field, value, required, type(self).__name__)
             return value
 
-    def __check_fields(self):
+    def _check_fields(self):
         self.check_fields()
 
     def check_fields(self):
         fields = inspect.getmembers(InvoiceHeader, lambda a: not (inspect.isroutine(a)))
         fields = [a for a in fields if not (a[0].startswith('__') and a[0].endswith('__'))]
         for item in fields:
-            self.__check_field(item[0], item[1])
+            self._check_field(item[0], item[1])
 
     def build_xml_data(self, request: SzamlaAgentRequest):
         if not request:
@@ -154,5 +154,5 @@ class InvoiceHeader(DocumentHeader):
         if self.preview_pdf:
             data['elonezetpdf'] = self.preview_pdf
 
-        self.__check_fields()
+        self._check_fields()
         return data

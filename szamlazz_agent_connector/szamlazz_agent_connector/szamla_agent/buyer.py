@@ -11,13 +11,6 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 
 class Buyer:
-    @property
-    def ledger_data(self):
-        return self.__ledger_data
-
-    @ledger_data.setter
-    def ledger_data(self, value: BuyerLedger):
-        self.__ledger_data = value
 
     def __init__(self, name="", zip_code="", city="", address=""):
         self.id = 0
@@ -40,6 +33,7 @@ class Buyer:
         self.signatory_name = ""
         self.phone = ""
         self.comment = ""
+        self.ledger_data = None
         self.__required_fields = {}
 
     def __check_field(self, field, value):
@@ -76,7 +70,7 @@ class Buyer:
             self.__check_field(item[0], item[1])
 
     def build_xml_data(self, request: SzamlaAgentRequest):
-        request_name = request.xmlName
+        request_name = request.xml_name
         if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             self.__required_fields = {'name': "", 'zip': "", 'city': "", 'address': ""}
 

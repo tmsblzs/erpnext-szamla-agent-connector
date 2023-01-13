@@ -6,6 +6,6 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.header.rever
 
 class ReverseInvoice(Invoice):
     def __init__(self, invoice_type=InvoiceConstant.INVOICE_TYPE_P_INVOICE):
-        super().__init__()
+        super().__init__(None, None)
         if invoice_type:
-            self.header = ReverseInvoiceHeader(invoice_type)
+            self._header = ReverseInvoiceHeader(invoice_type)

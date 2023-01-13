@@ -15,7 +15,7 @@ class TaxPayer:
     def get_default(self):
         return TaxPayerConstant.TAXPAYER_WE_DONT_KNOW
 
-    def __check_field(self, field, value):
+    def _check_field(self, field, value):
         if hasattr(self, field):
             required = True if field in self.__required_fields else False
             if field == 'taxPayerType':
@@ -23,14 +23,14 @@ class TaxPayer:
             elif field == 'taxPayerId':
                 SzamlaAgentUtil.check_str_field_with_reg_exp(field, value, required, type(self).__name__)
 
-    def __check_fields(self):
+    def _check_fields(self):
         fields = inspect.getmembers(TaxPayer, lambda a: not (inspect.isroutine(a)))
         fields = [a for a in fields if not (a[0].startswith('__') and a[0].endswith('__'))]
         for item in fields:
-            self.__check_field(item[0], item[1])
+            self._check_field(item[0], item[1])
 
     def build_xml_data(self, request: SzamlaAgentRequest):
-        self.__check_fields()
+        self._check_fields()
 
         data = {
             'beallitasok': request.agent.setting.build_xml_data(request),

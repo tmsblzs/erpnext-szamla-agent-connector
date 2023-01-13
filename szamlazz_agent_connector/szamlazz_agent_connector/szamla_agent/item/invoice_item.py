@@ -7,17 +7,9 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 class InvoiceItem(Item):
 
-    @property
-    def ledger_data(self):
-        return self.__ledger_data
-
-    @ledger_data.setter
-    def ledger_data(self, value: InvoiceItemLedger):
-        self.__ledger_data = value
-
     def __init__(self, name, net_unit_price, quantity=Item.DEFAULT_QUANTITY,
                  quantity_unit=Item.DEFAULT_QUANTITY_UNIT, vat=Item.DEFAULT_VAT):
-        self.ledger_data = ""
+        self.ledger_data = None
         super().__init__(name, net_unit_price, quantity, quantity_unit, vat)
 
     def build_xml_data(self):

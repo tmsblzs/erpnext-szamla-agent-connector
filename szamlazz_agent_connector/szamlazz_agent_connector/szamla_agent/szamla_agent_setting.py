@@ -4,8 +4,6 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.res
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.response.szamla_agent_response import \
-    SzamlaAgentResponse
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
 
 
@@ -34,7 +32,7 @@ class SzamlaAgentSetting:
     def build_xml_data(self, request: SzamlaAgentRequest):
         settings = ('felhasznalo', 'jelszo', 'szamlaagentkulcs')
 
-        xml_name = request.xmlName
+        xml_name = request.xml_name
         if xml_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             data = self.__build_fields_data(request,
                                             settings + ('eszamla', 'kulcstartojelszo', 'szamlaLetoltes',
@@ -54,7 +52,7 @@ class SzamlaAgentSetting:
         elif xml_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE \
                 or xml_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_RECEIPT \
                 or xml_name == XmlSchema.XML_SCHEMA_GET_RECEIPT:
-            data = self.__build_fields_data(request, settings + ('pdfLetoltes'))
+            data = self.__build_fields_data(request, settings + 'pdfLetoltes')
         elif xml_name == XmlSchema.XML_SCHEMA_SEND_RECEIPT \
                 or xml_name == XmlSchema.XML_SCHEMA_TAXPAYER:
             data = self.__build_fields_data(request, settings)

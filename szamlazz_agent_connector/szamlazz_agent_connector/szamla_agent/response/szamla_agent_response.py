@@ -2,7 +2,6 @@ import json
 import logging
 import xml.etree.ElementTree as Et
 from base64 import b64encode
-from io import BytesIO
 
 import xmldict as xmldict
 
@@ -16,35 +15,23 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 
 
 class SzamlaAgentResponse:
-    response = None
-    httpCode = None
-    errorMsg = ""
-    errorCode = ""
-    documentNumber = None
-    xmlData = None
-    pdfFile = None
-    content = None
-    responseObj = None
-    xmlSchemaType = None
 
     @property
     def agent(self):
-        return self.__agent
-
-    @agent.setter
-    def agent(self, value):
-        from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent import SzamlaAgent
-        if not isinstance(value, SzamlaAgent):
-            raise TypeError('agent must be an SzamlaAgent')
-        self.__agent = value
+        return self._agent
 
     def __init__(self, agent, response):
-        self.__agent = agent
+        self._agent = agent
+        self.error_msg = ""
+        self.error_code = ""
+        self.document_number = None
+        self.xml_data = None
+        self.http_code = None
+        self.pdf_file = None
+        self.content = None
+        self.response_obj = None
         self.response = response
-        self.xmlSchemaType = response['headers']['schema-type']
-
-    def __iter__(self):
-        return (self.response, self.result)
+        self.xml_schema_type = response['headers']['schema-type']
 
     def handle_response(self):
         response = self.response
@@ -59,7 +46,7 @@ class SzamlaAgentResponse:
             raise SzamlaAgentException(SzamlaAgentException.AGENT_RESPONSE_NO_HEADER)
 
         if 'http_code' in headers:
-            self.httpCode = headers['http_code']
+            self.http_code = headers['http_code']
 
         if self.is_xml_response():
             self.build_response_xml_data()
@@ -67,30 +54,30 @@ class SzamlaAgentResponse:
             self.build_response_text_data()
 
         self.build_response_obj_data()
-        self.create_xml_file(self.xmlData)
+        self.create_xml_file(self.xml_data)
         self.check_fields()
 
         if self.has_invoice_notification_send_error():
             agent.write_log(SzamlaAgentException.INVOICE_NOTIFICATION_SEND_FAILED, )
 
         if self.is_failed():
-            raise SzamlaAgentException(SzamlaAgentException.AGENT_ERROR + f"[{self.errorCode}], {self.errorMsg}")
+            raise SzamlaAgentException(SzamlaAgentException.AGENT_ERROR + f"[{self.error_code}], {self.error_msg}")
         elif self.is_success():
             agent.write_log("Agent calling is successfully ended.", logging.DEBUG)
             if self.is_not_tax_payer_xml_response():
                 try:
-                    response_obj = self.responseObj
-                    self.documentNumber = response_obj.document_number
+                    response_obj = self.response_obj
+                    self.document_number = response_obj.document_number
                     if agent.download_pdf:
                         pdf_data = self.response['body']
-                        xml_name = agent.request.xmlName
+                        xml_name = agent.request.xml_name
                         if not pdf_data and xml_name != XmlSchema.XML_SCHEMA_SEND_RECEIPT \
                                 and xml_name != XmlSchema.XML_SCHEMA_PAY_INVOICE:
                             raise SzamlaAgentException(SzamlaAgentException.DOCUMENT_DATA_IS_MISSING)
                         elif pdf_data:
-                            self.pdfFile = pdf_data
+                            self.pdf_file = pdf_data
 
-                            if agent.pdfFileSave:
+                            if agent.pdf_file_save:
                                 with open(self.get_pdf_file_name(), 'wb') as f:
                                     f.write(pdf_data)
                     else:
@@ -119,7 +106,7 @@ class SzamlaAgentResponse:
         name = ''
         if self.is_failed():
             name = 'error-'
-        name += agent.request.xmlName.lower()
+        name += agent.request.xml_name.lower()
 
         response_type = agent.response_type
         if response_type == ResponseConstant.RESULT_AS_XML or response_type == ResponseConstant.RESULT_AS_TAXPAYER_XML:
@@ -150,7 +137,7 @@ class SzamlaAgentResponse:
                 name += entity.__class__.__name__
             document_number = f"{name.lower()}preview-{SzamlaAgentUtil.get_date_time_with_milliseconds()}"
         else:
-            document_number = self.documentNumber
+            document_number = self.document_number
 
         if with_path:
             filename = SzamlaAgentResponse.get_pdf_file_abs_path(f'{document_number}.pdf')
@@ -179,7 +166,7 @@ class SzamlaAgentResponse:
 
     def is_failed(self):
         result = True
-        obj = self.responseObj
+        obj = self.response_obj
         if obj is not None:
             result = obj.is_error()
         return result
@@ -198,7 +185,7 @@ class SzamlaAgentResponse:
 
     def is_tax_payer_xml_response(self):
         result = True
-        if self.xmlSchemaType != 'taxpayer':
+        if self.xml_schema_type != 'taxpayer':
             return False
 
         if self.agent.response_type != ResponseConstant.RESULT_AS_TAXPAYER_XML:
@@ -213,13 +200,13 @@ class SzamlaAgentResponse:
                or self.is_tax_payer_xml_response()
 
     def is_agent_invoice_response(self):
-        return self.xmlSchemaType == DocumentConstant.DOCUMENT_TYPE_INVOICE
+        return self.xml_schema_type == DocumentConstant.DOCUMENT_TYPE_INVOICE
 
     def is_agent_proforma_response(self):
-        return self.xmlSchemaType == DocumentConstant.DOCUMENT_TYPE_PROFORMA
+        return self.xml_schema_type == DocumentConstant.DOCUMENT_TYPE_PROFORMA
 
     def is_agent_receipt_response(self):
-        return self.xmlSchemaType == DocumentConstant.DOCUMENT_TYPE_RECEIPT
+        return self.xml_schema_type == DocumentConstant.DOCUMENT_TYPE_RECEIPT
 
     def build_response_text_data(self):
         response = self.response
@@ -239,7 +226,7 @@ class SzamlaAgentResponse:
         body = Et.SubElement(xml_data, 'body')
         body.text = content
 
-        self.xmlData = '<?xml version="1.0" encoding="utf-8" ?>' + Et.tostring(xml_data).decode('utf-8')
+        self.xml_data = '<?xml version="1.0" encoding="utf-8" ?>' + Et.tostring(xml_data).decode('utf-8')
 
     def build_response_xml_data(self):
         response = self.response
@@ -250,14 +237,14 @@ class SzamlaAgentResponse:
             headers = Et.SubElement(xml_data.getroot(), 'headers')
             for header in response['headers']:
                 Et.SubElement(headers, header, response['headers'][header])
-        self.xmlData = xml_data
+        self.xml_data = xml_data
 
     def to_pdf(self):
-        return self.pdfFile
+        return self.pdf_file
 
     def to_xml(self):
-        if self.xmlData:
-            return self.xmlData
+        if self.xml_data:
+            return self.xml_data
         return None
 
     def to_json(self) -> str:
@@ -274,15 +261,15 @@ class SzamlaAgentResponse:
         return self.to_array()
 
     def get_data_obj(self):
-        return self.responseObj
+        return self.response_obj
 
     def get_response_data(self):
         result = {}
         if self.is_not_tax_payer_xml_response():
-            result['documentNumber'] = self.documentNumber
+            result['documentNumber'] = self.document_number
 
-        if self.xmlData:
-            result['result'] = xmldict.xml_to_dict(self.xmlData)
+        if self.xml_data:
+            result['result'] = xmldict.xml_to_dict(self.xml_data)
         else:
             result['result'] = self.content
 
@@ -304,20 +291,13 @@ class SzamlaAgentResponse:
             from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.response.invoice_response import \
                 InvoiceResponse
             obj = InvoiceResponse.parse_data(result['response'], response_type)
-        # elif self.is_agent_proforma_response():
-        #     obj = ProformaDeletionResponse.parse_data(result)
-        # elif self.is_agent_receipt_response():
-        #     obj = ReceiptResponse.parse_data(result, response_type)
-        # elif self.is_tax_payer_xml_response():
-        #     obj = TaxPayerResponse.parse_data(result)
-
-        self.responseObj = obj
+        self.response_obj = obj
 
         if obj.is_error() or self.has_invoice_notification_send_error():
-            self.errorCode = obj.error_code
-            self.errorMsg = obj.error_message
+            self.error_code = obj.error_code
+            self.error_msg = obj.error_message
 
     def has_invoice_notification_send_error(self):
-        if self.is_agent_invoice_response() and self.responseObj.has_invoice_notification_send_error():
+        if self.is_agent_invoice_response() and self.response_obj.has_invoice_notification_send_error():
             return True
         return False

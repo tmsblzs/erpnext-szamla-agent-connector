@@ -69,7 +69,7 @@ class Item:
         self.required_fields = {'name', 'quantity', 'quantityUnit',
                                 'netUnitPrice', 'vat', 'netPrice', 'vatAmount', 'grossAmount'}
 
-    def __check_field(self, field, value):
+    def _check_field(self, field, value):
         if hasattr(self, field):
             required = True if field in self.required_fields else False
             if field == 'quantity' \
@@ -91,4 +91,4 @@ class Item:
         fields = inspect.getmembers(self, lambda a: not (inspect.isroutine(a)))
         fields = [a for a in fields if not (a[0].startswith('__') and a[0].endswith('__'))]
         for item in fields:
-            self.__check_field(item[0], item[1])
+            self._check_field(item[0], item[1])

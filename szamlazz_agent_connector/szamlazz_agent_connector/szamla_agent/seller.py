@@ -19,7 +19,7 @@ class Seller:
         self.email_content = ""
         self.signatory_name = ""
 
-    def __check_field(self, field, value):
+    def _check_field(self, field, value):
         if hasattr(self, field):
             if field == 'bank' \
                     or field == 'bankAccount' \
@@ -30,15 +30,15 @@ class Seller:
                 SzamlaAgentUtil.check_str_field(field, value, False, type(self).__name__)
         return value
 
-    def __check_fields(self):
+    def _check_fields(self):
         fields = inspect.getmembers(Seller, lambda a: not (inspect.isroutine(a)))
         fields = [a for a in fields if not (a[0].startswith('__') and a[0].endswith('__'))]
         for item in fields:
-            self.__check_field(item[0], item[1])
+            self._check_field(item[0], item[1])
 
     def build_xml_data(self, request: SzamlaAgentRequest):
-        self.__check_fields()
-        request_name = request.xmlName
+        self._check_fields()
+        request_name = request.xml_name
 
         if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             data = OrderedDict()
@@ -50,16 +50,16 @@ class Seller:
             if self.signatory_name:
                 data['alaironeve'] = self.signatory_name
 
-            email_data = self.__get_xml_email_data()
+            email_data = self._get_xml_email_data()
             if email_data:
                 data.update(email_data)
         elif request_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:
-            data = self.__get_xml_email_data()
+            data = self._get_xml_email_data()
         else:
             raise SzamlaAgentException(SzamlaAgentException.XML_SCHEMA_TYPE_NOT_EXISTS + f": {request_name}")
         return data
 
-    def __get_xml_email_data(self):
+    def _get_xml_email_data(self):
         data = OrderedDict()
 
         if self.email_reply_to:

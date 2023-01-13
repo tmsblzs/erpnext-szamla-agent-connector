@@ -15,6 +15,13 @@ def on_submit(doc, event_name):
     _save_result(doc, agent.request, agent.response)
 
 
+def on_cancel(doc, event_name):
+    reverse_invoice = ReverseInvoiceHelper.create_from_sales_invoice(doc)
+
+    agent = SzamlaAgentApiHelper.create()
+    agent.generate_reverse_invoice(reverse_invoice)
+
+
 def _save_result(doc, request, result):
     pdf_file = PdfFileHelper.create_and_insert_from_agent_result(result)
     agent_invoice = AgentInvoiceHelper.create_and_insert_from_sales_invoice(doc, pdf_file.name,
@@ -24,8 +31,3 @@ def _save_result(doc, request, result):
     XmlFileHelper.create_and_insert_from_agent_result(request, agent_invoice.name)
 
 
-def on_cancel(doc, event_name):
-    reverse_invoice = ReverseInvoiceHelper.create_from_sales_invoice(doc)
-
-    agent = SzamlaAgentApiHelper.create()
-    agent.generate_reverse_invoice(reverse_invoice)

@@ -17,7 +17,7 @@ class ReverseInvoiceHeader(InvoiceHeader):
         self.issue_date = None
         self.fulfillment = None
 
-    def __check_field(self, field, value):
+    def _check_field(self, field, value):
         if hasattr(self, field):
             required = True if field in self._required_fields else False
             if field == 'issue_date' or field == 'fulfillment':
