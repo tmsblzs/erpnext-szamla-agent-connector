@@ -1,52 +1,51 @@
-from szamlazz_agent_connector.szamlazz_agent_connector.builder.header.invoice_header_xml_builder import \
-    InvoiceHeaderXmlBuilder
+from szamlazz_agent_connector.szamlazz_agent_connector.builder.header.invoice_header_xml_data_builder import \
+    InvoiceHeaderXmlDataBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.xml_schema import XmlSchema
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
     SzamlaAgentException
 
 
-class InvoiceXmlBuilder():
-    def __init__(self):
-        self._invoice = None
-        self._header_xml_builder = InvoiceHeaderXmlBuilder()
-
+class InvoiceXmlDataBuilder:
     def build_xml_data(self, request, invoice: Invoice):
-        self._invoice = invoice
         xml_name = request.xml_name
         if xml_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
-            data = self._build_fields_data(request,
+            data = self._build_fields_data(request, invoice,
                                            ('beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek'))
         elif xml_name == XmlSchema.XML_SCHEMA_DELETE_PROFORMA:
-            data = self._build_fields_data(request, ('beallitasok', 'fejlec'))
+            data = self._build_fields_data(request, invoice, ('beallitasok', 'fejlec'))
         elif xml_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:
-            data = self._build_fields_data(request, ('beallitasok', 'fejlec', 'elado', 'vevo'))
+            data = self._build_fields_data(request, invoice, ('beallitasok', 'fejlec', 'elado', 'vevo'))
         elif xml_name == XmlSchema.XML_SCHEMA_PAY_INVOICE:
-            data = self._build_fields_data(request, 'beallitasok')
+            data = self._build_fields_data(request, invoice, 'beallitasok')
             data = {**data, **self._build_credits_xml_data()}
         elif xml_name == XmlSchema.XML_SCHEMA_REQUEST_INVOICE_XML \
                 or XmlSchema.XML_SCHEMA_REQUEST_INVOICE_PDF:
-            settings = self._build_fields_data(request, 'beallitasok')
+            settings = self._build_fields_data(request, invoice, 'beallitasok')
             data = settings['beallitasok']
         else:
             raise SzamlaAgentException(SzamlaAgentException.XML_SCHEMA_TYPE_NOT_EXISTS + f": {xml_name}")
 
         return data
 
-    def _build_fields_data(self, request, fields):
+    def _build_fields_data(self, request, invoice: Invoice, fields):
         data = {}
 
         for key in fields:
             if key == 'beallitasok':
                 value = request.agent.setting.build_xml_data(request)
             elif key == 'fejlec':
-                value = self._header_xml_builder.build_xml_data(self._invoice.header)
+                from szamlazz_agent_connector.szamlazz_agent_connector.builder.build_xml_data import build_xml_data
+                value = build_xml_data(invoice.header, request)
             elif key == 'tetelek':
-                value = self._build_xml_items_data()
+                from szamlazz_agent_connector.szamlazz_agent_connector.builder.build_xml_data import build_xml_data
+                value = build_xml_data(invoice.items, request)
             elif key == 'elado':
-                value = self.seller.build_xml_data(request) if self.seller else []
+                from szamlazz_agent_connector.szamlazz_agent_connector.builder.build_xml_data import build_xml_data
+                value = build_xml_data(invoice.seller, request) if invoice.seller else []
             elif key == 'vevo':
-                value = self.buyer.build_xml_data(request) if self.buyer else []
+                from szamlazz_agent_connector.szamlazz_agent_connector.builder.build_xml_data import build_xml_data
+                value = build_xml_data(invoice.buyer, request) if invoice.buyer else []
             elif key == 'fuvarlevel':
                 value = None
             else:
@@ -57,18 +56,10 @@ class InvoiceXmlBuilder():
 
         return data
 
-    def _build_xml_items_data(self):
+    def _build_credits_xml_data(self, invoice: Invoice):
         data = {}
         count = 0
-        for item in self.items:
-            count += 1
-            data[f"item{count}"] = item.build_xml_data()
-        return data
-
-    def _build_credits_xml_data(self):
-        data = {}
-        count = 0
-        for item in self._credit_notes:
+        for item in invoice.credit_notes:
             count += 1
             data[f"note{count}"] = item.build_xml_data()
         return data

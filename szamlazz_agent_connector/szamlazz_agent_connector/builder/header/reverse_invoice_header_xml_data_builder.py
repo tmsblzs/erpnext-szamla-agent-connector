@@ -1,0 +1,28 @@
+from collections import OrderedDict
+
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
+    SzamlaAgentException
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.header.reverse_invoice_header import \
+    ReverseInvoiceHeader
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+
+
+class ReverseInvoiceXmlDataBuilder():
+    def build_xml_data(self, request: SzamlaAgentRequest, reverse_invoice: ReverseInvoiceHeader):
+        if not request:
+            raise SzamlaAgentException(SzamlaAgentException.XML_DATA_NOT_AVAILABLE)
+
+        data = OrderedDict([
+            ("szamlaszam", reverse_invoice.invoice_number)
+        ])
+        if reverse_invoice.issue_date:
+            data['keltDatum'] = reverse_invoice.issue_date
+        if reverse_invoice.fulfillment:
+            data['teljesitesDatum'] = reverse_invoice.fulfillment
+        data['tipus'] = DocumentConstant.DOCUMENT_TYPE_REVERSE_INVOICE_CODE
+        if reverse_invoice.invoice_template:
+            data['szamlaSablon'] = reverse_invoice.invoice_template
+
+        return data

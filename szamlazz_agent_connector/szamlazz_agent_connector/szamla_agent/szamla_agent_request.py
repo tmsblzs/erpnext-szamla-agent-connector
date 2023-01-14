@@ -30,22 +30,16 @@ class SzamlaAgentRequest:
     # Számla Agent XML séma alapértelmezett URL
     # (az XML generálásához használjuk, ne változtasd meg)
     XML_BASE_URL = 'http://www.szamlazz.hu/'
-
     # Számla Agent kérés maximális idő másodpercben
     REQUEST_TIMEOUT = 30
-
     # Számla Agent kérés módja: natív
     CALL_METHOD_LEGACY = 1
-
     # Számla Agent kérés módja: CURL
     CALL_METHOD_CURL = 2
-
     # Számla Agent kérés módja: automatikus
     CALL_METHOD_AUTO = 3
-
     # Kérés engedélyezési módok
     REQUEST_AUTHORIZATION_BASIC_AUTH = 1
-
     XMLNS_XSI_NAME = 'xmlns:xsi'
     XMLNS_XSI_URL = 'http://www.w3.org/2001/XMLSchema-instance'
 
@@ -279,27 +273,6 @@ class SzamlaAgentRequest:
             return response
         except Exception as ex:
             raise ex
-
-    # def make_legacy_call(self):
-    #     try:
-    #         agent = self.agent
-    #         if self.is_attachments():
-    #             raise SzamlaAgentException(SzamlaAgentException.SENDING_ATTACHMENT_NOT_ALLOWED)
-    #
-    #         cookie_text = ""
-    #         cookies = []
-    #         stored_cookies = []
-    #
-    #         cookie_file = self.get_cookie_file_path()
-    #         if cookie_file and os.path.exists(cookie_file) and os.path.getsize(cookie_file) > 0 and not self.file_get_contents(cookie_file, 'curl'):
-    #             with open(cookie_file, 'r') as f:
-    #                 stored_cookies = unserialize(f.read())
-    #             cookie_text = f"\r\nCookie: JSESSIONID={stored_cookies['JSESSIONID']}"
-    #
-    #         http_headers = "Content-Type: multipart/form-data; boundary="
-    #
-    #     except Exception as ex:
-    #         raise ex
 
     def get_headers_from_response(self, header_line):
         header_line = header_line.decode('iso-8859-1')

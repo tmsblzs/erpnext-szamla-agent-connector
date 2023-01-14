@@ -24,7 +24,7 @@ class Invoice(Document):
         self.buyer = buyer
         self.waybill = None
         self._items = []
-        self._credit_notes = None
+        self.credit_notes = None
         self._is_additive = True
         self.attachments = []
         if header_type:
