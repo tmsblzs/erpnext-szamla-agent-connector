@@ -14,3 +14,4 @@ xmldict~=0.4.1
 frappe~=13.45.0
 erpnext~=13.42.1
 python-dateutil~=2.8.2
+numpy~=1.22.3
