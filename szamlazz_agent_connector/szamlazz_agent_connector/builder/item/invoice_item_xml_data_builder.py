@@ -2,11 +2,15 @@ from collections import OrderedDict
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.item.invoice_item import InvoiceItem
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.item.invoice_item_validator import InvoiceItemValidator
 
 
 class InvoiceItemXmlDataBuilder:
+    def __init__(self, validator: InvoiceItemValidator):
+        self._validator = validator
+
     def build_xml_data(self, item: InvoiceItem):
-        self.check_fields()
+        self._validator.check_fields(item)
 
         data = OrderedDict([
             ('megnevezes', item.name),

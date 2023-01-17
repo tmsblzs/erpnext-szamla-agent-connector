@@ -5,11 +5,16 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.sz
     SzamlaAgentException
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.seller import Seller
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.seller_validator import SellerValidator
 
 
 class SellerXmlDataBuilder:
+    def __init__(self, validator: SellerValidator):
+        self._validator = validator
+
     def build_xml_data(self, request: SzamlaAgentRequest, seller: Seller):
+        self._validator.check_fields(seller)
+
         request_name = request.xml_name
 
         if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:

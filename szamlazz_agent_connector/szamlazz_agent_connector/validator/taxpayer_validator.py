@@ -2,7 +2,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 from szamlazz_agent_connector.szamlazz_agent_connector.validator.base_validator import BaseValidator
 
 
-class Taxpayer(BaseValidator):
+class TaxpayerValidator(BaseValidator):
     def __init__(self):
         self._required_fields = {'taxPayerId'}
 

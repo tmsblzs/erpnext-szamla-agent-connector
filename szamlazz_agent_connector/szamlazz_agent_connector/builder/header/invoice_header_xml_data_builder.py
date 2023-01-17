@@ -3,10 +3,17 @@ from collections import OrderedDict
 
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.header.invoice_header import InvoiceHeader
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.header.invoice_header_validator import \
+    InvoiceHeaderValidator
 
 
 class InvoiceHeaderXmlDataBuilder:
+    def __init__(self, validator : InvoiceHeaderValidator):
+        self._validator = validator
+
     def build_xml_data(self, request, header: InvoiceHeader):
+        self._validator.check_fields(header)
+
         data = OrderedDict([
             ('keltDatum', header.issue_date),
             ('teljesitesDatum', header.fulfillment),

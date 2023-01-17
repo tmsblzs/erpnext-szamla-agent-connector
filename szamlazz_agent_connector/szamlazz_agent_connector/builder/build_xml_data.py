@@ -23,6 +23,12 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.item.invoice
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.seller import Seller
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_setting import SzamlaAgentSetting
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.taxpayer import Taxpayer
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.buyer_validator import BuyerValidator
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.header.invoice_header_validator import \
+    InvoiceHeaderValidator
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.item.invoice_item_validator import InvoiceItemValidator
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.seller_validator import SellerValidator
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.taxpayer_validator import TaxpayerValidator
 
 
 @singledispatch
@@ -38,22 +44,22 @@ def _(model: Invoice, request):
 
 @build_xml_data.register
 def _(model: ReverseInvoiceHeader, request):
-    return InvoiceHeaderXmlDataBuilder().build_xml_data(request, model)
+    return InvoiceHeaderXmlDataBuilder(InvoiceHeaderValidator()).build_xml_data(request, model)
 
 
 @build_xml_data.register
 def _(model: Seller, request):
-    return SellerXmlDataBuilder().build_xml_data(request, model)
+    return SellerXmlDataBuilder(SellerValidator()).build_xml_data(request, model)
 
 
 @build_xml_data.register
 def _(model: Buyer, request):
-    return BuyerXmlDataBuilder().build_xml_data(request, model)
+    return BuyerXmlDataBuilder(BuyerValidator()).build_xml_data(request, model)
 
 
 @build_xml_data.register
 def _(model: Taxpayer, request):
-    return TaxpayerXmlDataBuilder().build_xml_data(request, model)
+    return TaxpayerXmlDataBuilder(SettingXmlDataBuilder(), TaxpayerValidator()).build_xml_data(request, model)
 
 
 @build_xml_data.register
@@ -63,11 +69,11 @@ def _(model: SzamlaAgentSetting, request):
 
 @build_xml_data.register
 def _(model: InvoiceItem, request):
-    return InvoiceItemXmlDataBuilder().build_xml_data(model)
+    return InvoiceItemXmlDataBuilder(InvoiceItemValidator()).build_xml_data(model)
 
 
 @build_xml_data.register(iterable(InvoiceItem))
 def _(model, request):
-    return InvoiceItemsXmlDataBuilder().build_xml_data(request, model)
+    return InvoiceItemsXmlDataBuilder(InvoiceItemXmlDataBuilder(InvoiceItemValidator())).build_xml_data(request, model)
 
 

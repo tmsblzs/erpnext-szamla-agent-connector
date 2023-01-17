@@ -7,12 +7,19 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.header.rever
     ReverseInvoiceHeader
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+from szamlazz_agent_connector.szamlazz_agent_connector.validator.header.reverse_invoice_header_validator import \
+    ReverseInvoiceHeaderValidator
 
 
-class ReverseInvoiceXmlDataBuilder():
+class ReverseInvoiceXmlDataBuilder:
+    def __init__(self, validator: ReverseInvoiceHeaderValidator):
+        self._validator = validator
+
     def build_xml_data(self, request: SzamlaAgentRequest, reverse_invoice: ReverseInvoiceHeader):
         if not request:
             raise SzamlaAgentException(SzamlaAgentException.XML_DATA_NOT_AVAILABLE)
+
+        self._validator.check_fields(reverse_invoice)
 
         data = OrderedDict([
             ("szamlaszam", reverse_invoice.invoice_number)
