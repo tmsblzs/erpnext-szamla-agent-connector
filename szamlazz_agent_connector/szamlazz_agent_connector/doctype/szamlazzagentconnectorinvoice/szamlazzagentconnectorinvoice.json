@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-01-08 20:08:27.796349",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "buyer",
+  "created_at",
+  "sum",
+  "invoice_date",
+  "is_successfully_send",
+  "pdf_file",
+  "own_invoice_number",
+  "szamlazz_invoice_number",
+  "sales_invoice",
+  "xml_file"
+ ],
+ "fields": [
+  {
+   "fieldname": "buyer",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Buyer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "sum",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sum",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "created_at",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Created At",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Invoice Date",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_successfully_send",
+   "fieldtype": "Check",
+   "label": "Is Successfully Send",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pdf_file",
+   "fieldtype": "Link",
+   "label": "Pdf File",
+   "options": "File",
+   "read_only": 1
+  },
+  {
+   "fieldname": "own_invoice_number",
+   "fieldtype": "Data",
+   "label": "Own Invoice Number"
+  },
+  {
+   "fieldname": "szamlazz_invoice_number",
+   "fieldtype": "Data",
+   "label": "Szamlazz.hu Invoice Number"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "xml_file",
+   "fieldtype": "Link",
+   "label": "Xml File",
+   "options": "File"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-11-27 16:25:18.259815",
+ "modified_by": "Administrator",
+ "module": "Szamlazz Agent Connector",
+ "name": "SzamlazzAgentConnectorInvoice",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

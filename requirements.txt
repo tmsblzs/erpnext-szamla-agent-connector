@@ -1,1 +1,16 @@
-frappe
+# frappe   # https://github.com/frappe/frappe is installed during bench-init
+ET
+et
+et-xmlfile
+regex
+random2
+fmmap
+pycurl~=7.44.1
+
+setuptools~=56.0.0
+lxml~=4.6.4
+xmldict~=0.4.1
+
+frappe~=13.45.0
+erpnext~=13.42.1
+python-dateutil~=2.8.2

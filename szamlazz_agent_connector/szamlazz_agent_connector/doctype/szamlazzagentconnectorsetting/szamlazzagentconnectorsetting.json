@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-01-08 20:26:01.743028",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break0",
+  "company",
+  "apikey",
+  "section_break1",
+  "mode_of_payments"
+ ],
+ "fields": [
+  {
+   "fieldname": "apikey",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Api Key",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break0",
+   "fieldtype": "Section Break",
+   "label": "Agent Settings"
+  },
+  {
+   "fieldname": "section_break1",
+   "fieldtype": "Section Break",
+   "label": "Payments Settings"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "mode_of_payments",
+   "fieldtype": "Table",
+   "label": "Mode of Payments",
+   "options": "SzamlazzAgentConnectorModeOfPayments",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company Name",
+   "options": "Company",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2022-12-15 17:45:16.834097",
+ "modified_by": "Administrator",
+ "module": "Szamlazz Agent Connector",
+ "name": "SzamlazzAgentConnectorSetting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
