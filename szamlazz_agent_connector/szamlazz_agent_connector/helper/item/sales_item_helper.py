@@ -1,6 +1,6 @@
 import frappe
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.tax_helper import TaxHelper
-from szamlazz_agent_connector.szamlazz_agent_connector.mapper.invoice_item_mapper import InvoiceItemMapper
+from szamlazz_agent_connector.szamlazz_agent_connector.helper.participant.tax_helper import TaxHelper
+from szamlazz_agent_connector.szamlazz_agent_connector.mapper.item.invoice_item_mapper import InvoiceItemMapper
 
 
 class SalesItemHelper:

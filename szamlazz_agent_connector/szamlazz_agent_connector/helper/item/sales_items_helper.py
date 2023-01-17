@@ -1,4 +1,4 @@
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.sales_item_helper import SalesItemHelper
+from szamlazz_agent_connector.szamlazz_agent_connector.helper.item.sales_item_helper import SalesItemHelper
 
 
 class SalesItemsHelper:

@@ -23,7 +23,7 @@ class CurlService:
         self._response_headers = []
         self._curl = pycurl.Curl()
 
-    def call(self, agent, entity, query_xml):
+    def make_call(self, agent, entity, query_xml):
         self.setup_call(agent)
         if self.is_basic_auth_request(agent):
             self._curl.setopt(pycurl.USERPWD, self.get_basic_auth_user_pwd(agent))

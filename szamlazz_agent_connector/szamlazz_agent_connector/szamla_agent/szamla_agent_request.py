@@ -7,6 +7,5 @@ class SzamlaAgentRequest:
         self.request_type = request_type
         self.entity = entity
         self.c_data = True
-        self.response_headers = {}
 
 
