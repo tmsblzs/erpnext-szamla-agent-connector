@@ -1,4 +1,4 @@
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.invoice_constant import InvoiceConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.invoice_constant import InvoiceConstant
 
 
 class ReverseInvoiceHeaderHelper:

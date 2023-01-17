@@ -1,5 +1,5 @@
 import frappe
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.seller import Seller
+from szamlazz_agent_connector.szamlazz_agent_connector.model.participant.seller import Seller
 
 
 class SellerHelper:

@@ -1,8 +1,8 @@
 import inspect
 from collections import OrderedDict
 
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.header.invoice_header import InvoiceHeader
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+from szamlazz_agent_connector.szamlazz_agent_connector.model.header.invoice_header import InvoiceHeader
+from szamlazz_agent_connector.szamlazz_agent_connector.model.szamla_agent_util import SzamlaAgentUtil
 from szamlazz_agent_connector.szamlazz_agent_connector.validator.header.invoice_header_validator import \
     InvoiceHeaderValidator
 

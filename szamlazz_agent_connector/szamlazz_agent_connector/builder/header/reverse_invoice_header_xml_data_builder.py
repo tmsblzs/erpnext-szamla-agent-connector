@@ -1,12 +1,11 @@
 from collections import OrderedDict
 
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
+from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.document_constant import DocumentConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.model.exception.szamla_agent_exception import \
     SzamlaAgentException
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.header.reverse_invoice_header import \
+from szamlazz_agent_connector.szamlazz_agent_connector.model.header.reverse_invoice_header import \
     ReverseInvoiceHeader
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
 from szamlazz_agent_connector.szamlazz_agent_connector.validator.header.reverse_invoice_header_validator import \
     ReverseInvoiceHeaderValidator
 

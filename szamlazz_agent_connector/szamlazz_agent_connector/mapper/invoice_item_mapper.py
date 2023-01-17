@@ -1,5 +1,5 @@
 from frappe import _
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.item.invoice_item import InvoiceItem
+from szamlazz_agent_connector.szamlazz_agent_connector.model.item.invoice_item import InvoiceItem
 
 
 class InvoiceItemMapper:

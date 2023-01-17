@@ -2,18 +2,15 @@ import hashlib
 import logging
 
 
-# from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
-# from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.exception.szamla_agent_exception import \
-#     SzamlaAgentException
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.agent_constant import AgentConstant
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.response_constant import ResponseConstant
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.response.szamla_agent_response import \
+from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.agent_constant import AgentConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.response_constant import ResponseConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.model.response.szamla_agent_response import \
      SzamlaAgentResponse
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_cookie import SzamlaAgentCookie
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import \
      SzamlaAgentRequest
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_setting import SzamlaAgentSetting
-# from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
+from szamlazz_agent_connector.szamlazz_agent_connector.model.szamla_agent_util import SzamlaAgentUtil
 
 
 class SzamlaAgent:
@@ -53,27 +50,14 @@ class SzamlaAgent:
         self.request = None
         self.response = None
         self.log_level = logging.NOTSET
-        self.cookie_file_name = self.build_cookie_filename()
+        self.cookie = SzamlaAgentCookie(self._setting.username, self._setting.api_key)
         self.environment = None
         self.custom_http_headers = None
         self.api_url = AgentConstant.API_URL
         self.pdf_file_save = True
         self.write_log(f"Szamla Agent initialization finished (apiKey: '{api_key}')", logging.DEBUG)
         self.log_email = ''
-        self.call_method = SzamlaAgentRequest.CALL_METHOD_CURL
         self.certification_file_name = AgentConstant.CERTIFICATION_FILENAME
-
-    def build_cookie_filename(self):
-        filename = 'cookie/cookie'
-        username = self.setting.username
-        apikey = self.setting.api_key
-
-        if username:
-            filename += "_" + hashlib.sha1(username.encode('utf-8')).hexdigest()
-        elif apikey:
-            filename += "_" + hashlib.sha1(apikey.encode('utf-8')).hexdigest()
-
-        return filename + '.txt'
 
     def send_request(self, request):
         self.request = request
@@ -96,7 +80,7 @@ class SzamlaAgent:
         request = self.request
         entity = request.entity
 
-        from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
+        from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.invoice import Invoice
         if entity and isinstance(entity, Invoice):
             header = entity.header
 

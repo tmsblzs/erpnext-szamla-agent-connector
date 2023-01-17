@@ -1,6 +1,6 @@
 import frappe
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer import Buyer
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.tax_payer_constant import TaxPayerConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.model.participant.buyer import Buyer
+from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.tax_payer_constant import TaxPayerConstant
 
 
 class BuyerHelper:

@@ -2,8 +2,8 @@ from szamlazz_agent_connector.szamlazz_agent_connector.helper.buyer_helper impor
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.invoice_header_helper import InvoiceHeaderHelper
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.sales_items_helper import SalesItemsHelper
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.seller_helper import SellerHelper
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.invoice_constant import InvoiceConstant
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document.invoice.invoice import Invoice
+from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.invoice_constant import InvoiceConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.invoice import Invoice
 
 
 class InvoiceHelper:
