@@ -1,8 +1,3 @@
-import inspect
-
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_util import SzamlaAgentUtil
-
-
 class Item:
     # Áfakulcs: tárgyi adómentes
     VAT_TAM = 'TAM'
@@ -66,29 +61,3 @@ class Item:
         self.vat_amount = 0
         self.gross_amount = 0
         self.comment = ""
-        self.required_fields = {'name', 'quantity', 'quantityUnit',
-                                'netUnitPrice', 'vat', 'netPrice', 'vatAmount', 'grossAmount'}
-
-    def __check_field(self, field, value):
-        if hasattr(self, field):
-            required = True if field in self.required_fields else False
-            if field == 'quantity' \
-                    or field == 'netUnitPrice' \
-                    or field == 'priceGapVatBase' \
-                    or field == 'netPrice' \
-                    or field == 'vatAmount' \
-                    or field == 'grossAmount':
-                SzamlaAgentUtil.check_float_field(field, value, required, type(self).__name__)
-            elif field == 'name' \
-                    or field == 'id' \
-                    or field == 'quantityUnit' \
-                    or field == 'vat' \
-                    or field == 'comment':
-                SzamlaAgentUtil.check_str_field(field, value, required, type(self).__name__)
-        return value
-
-    def check_fields(self):
-        fields = inspect.getmembers(self, lambda a: not (inspect.isroutine(a)))
-        fields = [a for a in fields if not (a[0].startswith('__') and a[0].endswith('__'))]
-        for item in fields:
-            self.__check_field(item[0], item[1])
