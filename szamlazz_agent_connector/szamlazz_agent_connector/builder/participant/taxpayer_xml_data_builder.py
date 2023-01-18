@@ -5,9 +5,9 @@ from szamlazz_agent_connector.szamlazz_agent_connector.validator.participant.tax
 
 
 class TaxpayerXmlDataBuilder:
-    def __init__(self, setting_builder: SettingXmlDataBuilder, validator: TaxpayerValidator):
+    def __init__(self, setting_builder: SettingXmlDataBuilder):
         self._setting_builder = setting_builder
-        self._validator = validator
+        self._validator = TaxpayerValidator()
 
     def build_xml_data(self, request: SzamlaAgentRequest, taxpayer: Taxpayer):
         self._validator.check_fields(taxpayer)

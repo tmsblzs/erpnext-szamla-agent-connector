@@ -8,8 +8,8 @@ from szamlazz_agent_connector.szamlazz_agent_connector.validator.header.invoice_
 
 
 class InvoiceHeaderXmlDataBuilder:
-    def __init__(self, validator : InvoiceHeaderValidator):
-        self._validator = validator
+    def __init__(self):
+        self._validator = InvoiceHeaderValidator()
 
     def build_xml_data(self, request, header: InvoiceHeader):
         self._validator.check_fields(header)

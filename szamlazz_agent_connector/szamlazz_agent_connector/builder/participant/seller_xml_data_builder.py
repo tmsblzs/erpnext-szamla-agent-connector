@@ -9,8 +9,8 @@ from szamlazz_agent_connector.szamlazz_agent_connector.validator.participant.sel
 
 
 class SellerXmlDataBuilder:
-    def __init__(self, validator: SellerValidator):
-        self._validator = validator
+    def __init__(self):
+        self._validator = SellerValidator()
 
     def build_xml_data(self, request: SzamlaAgentRequest, seller: Seller):
         self._validator.check_fields(seller)

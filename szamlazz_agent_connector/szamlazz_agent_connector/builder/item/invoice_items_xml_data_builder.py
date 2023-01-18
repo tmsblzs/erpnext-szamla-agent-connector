@@ -3,8 +3,8 @@ from szamlazz_agent_connector.szamlazz_agent_connector.builder.item.invoice_item
 
 
 class InvoiceItemsXmlDataBuilder:
-    def __init__(self, item_builder: InvoiceItemXmlDataBuilder):
-        self._item_builder = item_builder
+    def __init__(self):
+        self._item_builder = InvoiceItemXmlDataBuilder()
 
     def build_xml_data(self, request, items):
         data = {}

@@ -9,12 +9,12 @@ from szamlazz_agent_connector.szamlazz_agent_connector.validator.participant.buy
 
 
 class BuyerXmlDataBuilder:
-    def __init__(self, validator: BuyerValidator):
-        self._validator = validator
+    def __init__(self):
+        self._validator = BuyerValidator()
 
     def build_xml_data(self, request: SzamlaAgentRequest, buyer: Buyer):
         self._validator.check_fields(buyer)
-        request_name = request.xml_name
+        request_name = request.entity.xml_name
         if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
 
             data = OrderedDict([

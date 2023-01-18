@@ -6,8 +6,8 @@ from szamlazz_agent_connector.szamlazz_agent_connector.validator.item.invoice_it
 
 
 class InvoiceItemXmlDataBuilder:
-    def __init__(self, validator: InvoiceItemValidator):
-        self._validator = validator
+    def __init__(self):
+        self._validator = InvoiceItemValidator()
 
     def build_xml_data(self, item: InvoiceItem):
         self._validator.check_fields(item)

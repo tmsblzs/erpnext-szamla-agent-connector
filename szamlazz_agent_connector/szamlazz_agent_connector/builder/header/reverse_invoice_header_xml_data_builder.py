@@ -11,8 +11,8 @@ from szamlazz_agent_connector.szamlazz_agent_connector.validator.header.reverse_
 
 
 class ReverseInvoiceXmlDataBuilder:
-    def __init__(self, validator: ReverseInvoiceHeaderValidator):
-        self._validator = validator
+    def __init__(self):
+        self._validator = ReverseInvoiceHeaderValidator()
 
     def build_xml_data(self, request: SzamlaAgentRequest, reverse_invoice: ReverseInvoiceHeader):
         if not request:
