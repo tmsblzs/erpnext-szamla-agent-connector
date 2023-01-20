@@ -4,7 +4,7 @@ import logging
 
 from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.agent_constant import AgentConstant
 from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.response_constant import ResponseConstant
-from szamlazz_agent_connector.szamlazz_agent_connector.model.response.szamla_agent_response import \
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_response import \
      SzamlaAgentResponse
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_cookie import SzamlaAgentCookie
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import \

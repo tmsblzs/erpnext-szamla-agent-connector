@@ -288,9 +288,8 @@ class SzamlaAgentResponse:
             raise SzamlaAgentException
 
         if self.is_agent_invoice_response():
-            from szamlazz_agent_connector.szamlazz_agent_connector.model.response.invoice_response import \
-                InvoiceResponse
-            obj = InvoiceResponse.parse_data(result['response'], response_type)
+            from szamlazz_agent_connector.szamlazz_agent_connector.parser.document.invoice_parser import InvoiceParser
+            obj = InvoiceParser.parse_data(result['response'], response_type)
         self.response_obj = obj
 
         if obj.is_error() or self.has_invoice_notification_send_error():
