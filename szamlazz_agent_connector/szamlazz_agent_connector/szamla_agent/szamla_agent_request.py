@@ -66,7 +66,7 @@ class SzamlaAgentRequest:
         self.agent = agent
         self.type = request_type
         self.entity = entity
-        self.cData = True
+        self.c_data = False
         self.fileName = ''
         self.xmlName = ''
         self.xsdDir = ''
@@ -124,12 +124,14 @@ class SzamlaAgentRequest:
                 sub_node = ET.SubElement(xml_node, "{" + self.get_xml_ns() + "}" + field_key)
                 self.array_to_xml(xml_data[key], sub_node)
             else:
-                if isinstance(xml_data[key], (int, float)):
-                    value = str(xml_data[key]).lower()
-                elif self.cData:
-                    value = html.escape(xml_data[key])
-                else:
+                if isinstance(xml_data[key], bool):
                     value = 'true' if xml_data[key] else 'false'
+                elif isinstance(xml_data[key], (int, float)):
+                    value = str(xml_data[key]).lower()
+                elif self.c_data:
+                    value = f"\n<![CDATA[{xml_data[key]}]]>\n"
+                else:
+                    value = xml_data[key]
 
                 sub_element = ET.SubElement(xml_node, "{" + self.get_xml_ns() + "}" + key)
                 sub_element.text = value
