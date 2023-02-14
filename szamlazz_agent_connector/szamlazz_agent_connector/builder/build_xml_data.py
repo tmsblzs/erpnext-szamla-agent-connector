@@ -65,8 +65,8 @@ def _(model: InvoiceItem, request):
     return InvoiceItemXmlDataBuilder().build_xml_data(model)
 
 
-@build_xml_data.register(iterable(InvoiceItem))
-def _(model, request):
-    return InvoiceItemsXmlDataBuilder().build_xml_data(request, model)
+# @build_xml_data.register(iterable(InvoiceItem))
+# def _(model, request):
+#     return InvoiceItemsXmlDataBuilder().build_xml_data(request, model)
 
 

@@ -13,6 +13,11 @@ class InvoiceHeaderHelper:
         header.prefix = ''
         header.preview_pdf = False
         header.invoice_template = InvoiceConstant.INVOICE_TEMPLATE_DEFAULT
+        shipping_address = sales_invoice.shipping_address if sales_invoice.shipping_address is not None else None
+        if shipping_address:
+            shipping_address = shipping_address.replace('\n', '')
+            shipping_address = shipping_address.replace('<br>', '\n')
+            header.comment = f"Szállítási cím: \n{shipping_address}\n"
         return header
 
     @classmethod
