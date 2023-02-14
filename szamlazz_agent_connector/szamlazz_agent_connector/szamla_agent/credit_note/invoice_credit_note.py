@@ -1,0 +1,2 @@
+class InvoiceCreditNote:
+    pass
