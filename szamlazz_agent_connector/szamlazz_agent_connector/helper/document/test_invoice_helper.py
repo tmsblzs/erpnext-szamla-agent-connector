@@ -20,8 +20,8 @@ class TestInvoiceHelper(FrappeTestCase):
             seller_helper,
             invoice_header_helper,
             sales_items_helper):
-        seller_helper.get_from_sales_invoice.return_value = Seller
-        buyer_helper.get_buyer_from_sales_invoice.return_value = Buyer
+        TestInvoiceHelper._setup_seller_helper(seller_helper)
+        TestInvoiceHelper._setup_buyer_helper(buyer_helper)
         sales_invoice = frappe.new_doc("Sales Invoice")
 
         InvoiceHelper.create_from_sales_invoice(sales_invoice)
@@ -34,8 +34,8 @@ class TestInvoiceHelper(FrappeTestCase):
             seller_helper,
             invoice_header_helper,
             sales_items_helper):
-        seller_helper.get_from_sales_invoice.return_value = Seller
-        buyer_helper.get_buyer_from_sales_invoice.return_value = Buyer
+        TestInvoiceHelper._setup_seller_helper(seller_helper)
+        TestInvoiceHelper._setup_buyer_helper(buyer_helper)
         sales_invoice = frappe.new_doc("Sales Invoice")
 
         InvoiceHelper.create_from_sales_invoice(sales_invoice)
@@ -48,8 +48,8 @@ class TestInvoiceHelper(FrappeTestCase):
             seller_helper,
             invoice_header_helper,
             sales_items_helper):
-        seller_helper.get_from_sales_invoice.return_value = Seller
-        buyer_helper.get_buyer_from_sales_invoice.return_value = Buyer
+        TestInvoiceHelper._setup_seller_helper(buyer_helper)
+        TestInvoiceHelper._setup_buyer_helper(seller_helper)
         sales_invoice = frappe.new_doc("Sales Invoice")
 
         InvoiceHelper.create_from_sales_invoice(sales_invoice)
@@ -62,8 +62,8 @@ class TestInvoiceHelper(FrappeTestCase):
             seller_helper,
             invoice_header_helper,
             sales_items_helper):
-        seller_helper.get_from_sales_invoice.return_value = Seller
-        buyer_helper.get_buyer_from_sales_invoice.return_value = Buyer
+        TestInvoiceHelper._setup_seller_helper(seller_helper)
+        TestInvoiceHelper._setup_buyer_helper(buyer_helper)
         sales_invoice = frappe.new_doc("Sales Invoice")
 
         InvoiceHelper.create_from_sales_invoice(sales_invoice)
@@ -76,19 +76,13 @@ class TestInvoiceHelper(FrappeTestCase):
             seller_helper,
             invoice_header_helper,
             sales_items_helper):
-        seller = self._setup_seller_helper(seller_helper)
-        buyer = Buyer
-        buyer_helper.get_buyer_from_sales_invoice.return_value = buyer
+        seller = TestInvoiceHelper._setup_seller_helper(seller_helper)
+        TestInvoiceHelper._setup_buyer_helper(buyer_helper)
         sales_invoice = frappe.new_doc("Sales Invoice")
 
         invoice = InvoiceHelper.create_from_sales_invoice(sales_invoice)
 
         self.assertEqual(invoice.seller, seller)
-
-    def _setup_seller_helper(self, seller_helper):
-        seller = Seller
-        seller_helper.get_from_sales_invoice.return_value = seller
-        return seller
 
     def test_fill_invoice_the_right_buyer(
             self,
@@ -96,9 +90,8 @@ class TestInvoiceHelper(FrappeTestCase):
             seller_helper,
             invoice_header_helper,
             sales_items_helper):
-        seller = self._setup_seller_helper(seller_helper)
-        buyer = Buyer
-        buyer_helper.get_buyer_from_sales_invoice.return_value = buyer
+        TestInvoiceHelper._setup_seller_helper(seller_helper)
+        buyer = TestInvoiceHelper._setup_buyer_helper(buyer_helper)
         sales_invoice = frappe.new_doc("Sales Invoice")
 
         invoice = InvoiceHelper.create_from_sales_invoice(sales_invoice)
@@ -111,11 +104,23 @@ class TestInvoiceHelper(FrappeTestCase):
             seller_helper,
             invoice_header_helper,
             sales_items_helper):
-        seller = self._setup_seller_helper(seller_helper)
-        buyer = Buyer
-        buyer_helper.get_buyer_from_sales_invoice.return_value = buyer
+        TestInvoiceHelper._setup_seller_helper(seller_helper)
+        TestInvoiceHelper._setup_buyer_helper(buyer_helper)
         sales_invoice = frappe.new_doc("Sales Invoice")
 
         invoice = InvoiceHelper.create_from_sales_invoice(sales_invoice)
 
         self.assertEqual(invoice.header.invoice_type, InvoiceConstant.INVOICE_TYPE_P_INVOICE)
+
+    @staticmethod
+    def _setup_buyer_helper(buyer_helper):
+        buyer = Buyer
+        buyer_helper.get_buyer_from_sales_invoice.return_value = buyer
+        return buyer
+
+    @staticmethod
+    def _setup_seller_helper(seller_helper):
+        seller = Seller
+        seller_helper.get_from_sales_invoice.return_value = seller
+        return seller
+
