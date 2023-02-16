@@ -3,7 +3,6 @@ from szamlazz_agent_connector.szamlazz_agent_connector.helper.document.invoice_h
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.file.pdf_file_helper import PdfFileHelper
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.document.reverse_invoice_helper \
     import ReverseInvoiceHelper
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.agent.szamla_agent_api_helper import SzamlaAgentApiHelper
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.file.xml_file_helper import XmlFileHelper
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document_generate import document_generate
 

@@ -5,7 +5,6 @@ from szamlazz_agent_connector.szamlazz_agent_connector.helper.agent.szamla_agent
 from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.invoice import Invoice
 from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.reverse_invoice import ReverseInvoice
 from szamlazz_agent_connector.szamlazz_agent_connector.service.request_sender import RequestSender
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
 
 
 @singledispatch
