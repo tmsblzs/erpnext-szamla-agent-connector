@@ -16,6 +16,6 @@ class InvoiceHelper:
             buyer,
             InvoiceConstant.INVOICE_TYPE_P_INVOICE)
         InvoiceHeaderHelper.fill_from_sales_invoice(invoice.header, sales_invoice)
-        SalesItemsHelper.add_items_to_invoice(invoice, sales_invoice.items, sales_invoice.tax_category)
+        SalesItemsHelper.add_items_to_invoice(invoice, sales_invoice.get("items"), sales_invoice.tax_category)
         return invoice
 
