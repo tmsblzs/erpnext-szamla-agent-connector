@@ -9,7 +9,11 @@ class BuyerHelper:
         customer_name = sales_invoice.customer
         customer = frappe.get_doc('Customer', customer_name)
         customer_address = frappe.get_doc('Address', sales_invoice.customer_address)
-        buyer = Buyer(customer.customer_name, customer_address.pincode, customer_address.city, customer_address.address_line1)
+        buyer = Buyer(
+            customer.customer_name,
+            customer_address.pincode,
+            customer_address.city,
+            customer_address.address_line1)
         buyer.tax_number = customer.tax_id
         buyer.tax_payer = TaxPayerConstant.TAXPAYER_HAS_TAXNUMBER
         return buyer

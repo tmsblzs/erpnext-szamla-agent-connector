@@ -1,11 +1,8 @@
-from html import escape
-
-
 class Buyer:
 
     def __init__(self, name="", zip_code="", city="", address=""):
         self.id = 0
-        self.name = escape(name)
+        self.name = name
         self.country = ""
         self.zip_code = zip_code
         self.city = city
