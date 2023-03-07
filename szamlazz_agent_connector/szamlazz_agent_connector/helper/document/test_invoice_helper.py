@@ -4,8 +4,8 @@ import frappe
 from frappe.tests.utils import FrappeTestCase
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.document.invoice_helper import InvoiceHelper
 from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.invoice_constant import InvoiceConstant
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.buyer import Buyer
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.seller import Seller
+from szamlazz_agent_connector.szamlazz_agent_connector.model.participant.buyer import Buyer
+from szamlazz_agent_connector.szamlazz_agent_connector.model.participant.seller import Seller
 
 
 @patch("szamlazz_agent_connector.szamlazz_agent_connector.helper.document.invoice_helper.SalesItemsHelper")
