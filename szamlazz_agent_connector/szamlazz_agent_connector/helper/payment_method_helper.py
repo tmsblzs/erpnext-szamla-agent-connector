@@ -1,5 +1,6 @@
 import frappe
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.payment_mode_helper import PaymentModeHelper
+from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.document_constant import DocumentConstant
 
 
 class PaymentMethodHelper:
@@ -11,3 +12,4 @@ class PaymentMethodHelper:
         if terms:
             term = frappe.get_doc("Payment Terms Template Detail", terms[0].name)
             return PaymentModeHelper.get_payment_mode(term.mode_of_payment)
+        return DocumentConstant.PAYMENT_METHOD_CASH
