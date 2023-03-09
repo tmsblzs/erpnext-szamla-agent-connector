@@ -9,6 +9,12 @@ from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.document_c
 
 @patch("szamlazz_agent_connector.szamlazz_agent_connector.helper.payment_method_helper.frappe")
 class TestPaymentMethodHelper(FrappeTestCase):
+    def setUp(self):
+        self.get_payment_mode = PaymentModeHelper.get_payment_mode
+
+    def tearDown(self):
+        PaymentModeHelper.get_payment_mode = self.get_payment_mode
+
     def test_return_cash_if_no_term(self, frappe_mock):
         frappe_mock.get_all.return_value = None
 
@@ -36,7 +42,8 @@ class TestPaymentMethodHelper(FrappeTestCase):
 
     def test_frappe_get_doc_called_with_correct_args(self, frappe_mock):
         TERM_NAME = 'Test name'
-        self._setup_frappe_mock(frappe_mock, term_name=TERM_NAME)
+        term = self._create_payment_term_template_detail(term_name=TERM_NAME)
+        self._setup_frappe_mock(frappe_mock, term)
         self._setup_payment_mode_helper()
 
         PaymentMethodHelper.get_payment_method("")
@@ -46,7 +53,8 @@ class TestPaymentMethodHelper(FrappeTestCase):
 
     def test_get_payment_mode_called_with_correct_args(self, frappe_mock):
         TERM_MODE_OF_PAYMENT = 'CASH'
-        self._setup_frappe_mock(frappe_mock, mode_of_payment=TERM_MODE_OF_PAYMENT)
+        term = self._create_payment_term_template_detail(mode_of_payment=TERM_MODE_OF_PAYMENT)
+        self._setup_frappe_mock(frappe_mock, term)
         self._setup_payment_mode_helper()
 
         PaymentMethodHelper.get_payment_method("")
@@ -54,10 +62,15 @@ class TestPaymentMethodHelper(FrappeTestCase):
         PaymentModeHelper.get_payment_mode\
             .assert_called_once_with(TERM_MODE_OF_PAYMENT)
 
-    def _setup_frappe_mock(self, frappe_mock, term_name=None, mode_of_payment=None):
+    def _create_payment_term_template_detail(self, term_name=None, mode_of_payment=None):
         term = frappe.new_doc("Payment Terms Template Detail")
         term.name = term_name
         term.mode_of_payment = mode_of_payment
+        return term
+
+    def _setup_frappe_mock(self, frappe_mock, term=None):
+        if term is None:
+            term = self._create_payment_term_template_detail()
         frappe_mock.get_all.return_value = [term]
         frappe_mock.get_doc.return_value = term
 
