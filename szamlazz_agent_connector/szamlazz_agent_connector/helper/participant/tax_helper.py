@@ -8,6 +8,6 @@ class TaxHelper:
         tax_rate = 0
         if tax:
             tax_template = frappe.get_doc("Item Tax Template", tax[0].item_tax_template)
-            if tax_template:
+            if len(tax_template.taxes) > 0:
                 tax_rate = tax_template.taxes[0].tax_rate
         return tax_rate
