@@ -1,4 +1,5 @@
 from frappe import _
+
 from szamlazz_agent_connector.szamlazz_agent_connector.model.item.invoice_item import InvoiceItem
 
 
