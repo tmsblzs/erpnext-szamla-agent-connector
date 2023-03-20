@@ -16,12 +16,14 @@ def document_generate(entity):
 def _(entity: Invoice):
     request = SzamlaAgentRequestHelper.create('generateInvoice', entity)
     sender = RequestSender()
-    sender.send(request)
+    response = sender.send(request)
+    return request, response
 
 
 @document_generate.register
 def _(entity: ReverseInvoice):
     request = SzamlaAgentRequestHelper.create('generateReverseInvoice', entity)
     sender = RequestSender()
-    sender.send(request)
+    response = sender.send(request)
+    return request, response
 

@@ -1,5 +1,3 @@
-from szamlazz_agent_connector.szamlazz_agent_connector.builder.header.invoice_header_xml_data_builder import \
-    InvoiceHeaderXmlDataBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.xml_schema import XmlSchema
 from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.invoice import Invoice
 from szamlazz_agent_connector.szamlazz_agent_connector.model.exception.szamla_agent_exception import \
@@ -33,7 +31,8 @@ class InvoiceXmlDataBuilder:
 
         for key in fields:
             if key == 'beallitasok':
-                value = request.agent.setting.build_xml_data(request)
+                from szamlazz_agent_connector.szamlazz_agent_connector.builder.build_xml_data import build_xml_data
+                value = build_xml_data(request.agent.setting, request)
             elif key == 'fejlec':
                 from szamlazz_agent_connector.szamlazz_agent_connector.builder.build_xml_data import build_xml_data
                 value = build_xml_data(invoice.header, request)

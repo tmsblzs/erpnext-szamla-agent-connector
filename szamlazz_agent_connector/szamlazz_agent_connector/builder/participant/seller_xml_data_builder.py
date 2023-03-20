@@ -27,7 +27,7 @@ class SellerXmlDataBuilder:
             if seller.signatory_name:
                 data['alaironeve'] = seller.signatory_name
 
-            email_data = self._get_xml_email_data()
+            email_data = self._get_xml_email_data(seller)
             if email_data:
                 data.update(email_data)
         elif request_name == XmlSchema.XML_SCHEMA_CREATE_REVERSE_INVOICE:

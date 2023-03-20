@@ -1,5 +1,6 @@
 import logging
 import xml.etree.ElementTree as ET
+from html import escape
 from io import BytesIO
 
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.build_xml_data import build_xml_data
@@ -31,7 +32,7 @@ class RequestXmlBuilder:
         try:
             xml_text = get_xml_text(xml_node)
         except Exception as ex:
-            raise SzamlaAgentException(SzamlaAgentException.XML_DATA_BUILD_FAILED + format(ex))
+            raise SzamlaAgentException(f"{SzamlaAgentException.XML_DATA_BUILD_FAILED} {format(ex)}")
         else:
             result = SzamlaAgentUtil.check_valid_xml(xml_text)
             if not result:
@@ -62,12 +63,12 @@ class RequestXmlBuilder:
                 sub_node = ET.SubElement(xml_node, "{" + xml_ns + "}" + field_key)
                 self.array_to_xml(xml_data[key], sub_node, xml_ns)
             else:
+                if isinstance(xml_data[key], bool):
+                    value = 'true' if xml_data[key] else 'false'
                 if isinstance(xml_data[key], (int, float)):
                     value = str(xml_data[key]).lower()
-                elif self._c_data:
-                    value = xml_data[key]
                 else:
-                    value = 'true' if xml_data[key] else 'false'
+                    value = xml_data[key]
 
                 sub_element = ET.SubElement(xml_node, "{" + xml_ns + "}" + key)
                 sub_element.text = value

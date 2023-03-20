@@ -14,6 +14,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.builder.item.invoice_item
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.participant.seller_xml_data_builder import SellerXmlDataBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.agent.setting_xml_data_builder import SettingXmlDataBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.participant.taxpayer_xml_data_builder import TaxpayerXmlDataBuilder
+from szamlazz_agent_connector.szamlazz_agent_connector.model.header.invoice_header import InvoiceHeader
 from szamlazz_agent_connector.szamlazz_agent_connector.model.participant.buyer import Buyer
 from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.invoice import Invoice
 from szamlazz_agent_connector.szamlazz_agent_connector.model.header.reverse_invoice_header import \
@@ -26,8 +27,13 @@ from szamlazz_agent_connector.szamlazz_agent_connector.model.participant.taxpaye
 
 @singledispatch
 def build_xml_data(model, request):
-    raise ValueError(f"No xml data builder found for {model}!")
+    raise ValueError(f"No xml data builder found for {model.__class__}!")
     pass
+
+
+@build_xml_data.register
+def _(model: InvoiceHeader, request):
+    return InvoiceHeaderXmlDataBuilder().build_xml_data(request, model)
 
 
 @build_xml_data.register
@@ -65,8 +71,8 @@ def _(model: InvoiceItem, request):
     return InvoiceItemXmlDataBuilder().build_xml_data(model)
 
 
-# @build_xml_data.register(iterable(InvoiceItem))
-# def _(model, request):
-#     return InvoiceItemsXmlDataBuilder().build_xml_data(request, model)
+@build_xml_data.register(list)
+def _(model, request):
+    return InvoiceItemsXmlDataBuilder().build_xml_data(request, model)
 
 

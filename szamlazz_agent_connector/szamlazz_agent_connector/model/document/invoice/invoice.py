@@ -20,6 +20,18 @@ class Invoice(Document):
     def add_item(self, item: InvoiceItem):
         self.items.append(item)
 
+    @property
+    def xml_name(self):
+        return self._xml_name
+
+    @property
+    def xsd_dir(self):
+        return self._xsd_dir
+
+    @property
+    def is_attachments(self):
+        return len(self.attachments) > 0
+
     def __init__(self, seller, buyer, header_type=InvoiceConstant.INVOICE_TYPE_P_INVOICE):
         super().__init__()
         self.seller = seller
@@ -27,7 +39,7 @@ class Invoice(Document):
         self.waybill = None
         self._items = []
         self.credit_notes = None
-        self._is_additive = True
+        self.is_additive = True
         self._file_name = 'action-xmlagentxmlfile'
         self._xml_name = XmlSchema.XML_SCHEMA_CREATE_INVOICE
         self._xml_schema_type = DocumentConstant.DOCUMENT_TYPE_INVOICE

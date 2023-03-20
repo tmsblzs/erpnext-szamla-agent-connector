@@ -10,9 +10,9 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document_gen
 def on_submit(doc, event_name):
     invoice = InvoiceHelper.create_from_sales_invoice(doc)
 
-    response = document_generate(invoice)
+    request, response = document_generate(invoice)
 
-    # _save_result(doc, agent.request, agent.response)
+    _save_result(doc, request, response)
 
 
 def on_cancel(doc, event_name):

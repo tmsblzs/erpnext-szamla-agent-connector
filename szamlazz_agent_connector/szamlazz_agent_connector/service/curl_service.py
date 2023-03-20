@@ -20,7 +20,7 @@ class CurlService:
     REQUEST_AUTHORIZATION_BASIC_AUTH = 1
 
     def __init__(self):
-        self._response_headers = []
+        self._response_headers = {}
         self._curl = pycurl.Curl()
 
     def make_call(self, agent, entity, query_xml):
@@ -72,10 +72,10 @@ class CurlService:
         return error, headers, response
 
     def set_cookie(self, agent):
-        if agent.cookie_file_name:
-            cookie_file = agent.cookie.get_cookie_file_path(agent)
+        if agent.cookie.filename:
+            cookie_file = agent.cookie.get_file_path()
             if os.path.exists(cookie_file) and os.path.getsize(cookie_file) > 0 \
-                    and agent.cookie.file_get_contents(cookie_file, b'curl'):
+                    and agent.cookie.get_contents(b'curl'):
                 with open(cookie_file, 'a') as file:
                     file.write('')
                     agent.write_log("Cookie has changed", logging.DEBUG)
@@ -86,7 +86,7 @@ class CurlService:
 
     def set_data_for_sending(self, entity, query_xml):
         file_upload = [(entity.filename, (
-            pycurl.FORM_CONTENTS, query_xml,
+            pycurl.FORM_CONTENTS, query_xml.encode('utf-8'),
             pycurl.FORM_FILENAME, entity.filename,
             pycurl.FORM_CONTENTTYPE, 'text/xml'
         ))]
@@ -94,7 +94,7 @@ class CurlService:
 
     def set_attachments(self, agent, entity):
         post_fields = {}
-        if entity.is_attachments():
+        if entity.is_attachments:
             attachments = entity.attachments
             if attachments:
                 for idx, item in attachments:
@@ -136,7 +136,7 @@ class CurlService:
         self._curl.setopt(pycurl.TIMEOUT, CurlService.REQUEST_TIMEOUT)
 
     def get_headers_from_response(self, header_line):
-        header_line = header_line.decode('iso-8859-1')
+        header_line = header_line.decode('UTF-8')
         if ':' not in header_line:
             return
 
