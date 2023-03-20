@@ -41,7 +41,7 @@ class RequestXmlBuilder:
             xml_str = xml_text.replace(bytearray(QueryBuilder.LF, 'utf-8'), bytearray('', 'utf-8'))
 
             agent.write_log("Collection XML data has done.", logging.DEBUG)
-            return xml_str
+            return xml_text
 
     def build_xml_nodes(self, entity, xml_data):
         xml_ns = get_xml_ns(entity)

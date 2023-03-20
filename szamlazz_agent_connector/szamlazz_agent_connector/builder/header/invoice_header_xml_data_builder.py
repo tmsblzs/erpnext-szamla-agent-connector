@@ -1,4 +1,3 @@
-import inspect
 from collections import OrderedDict
 
 from szamlazz_agent_connector.szamlazz_agent_connector.model.header.invoice_header import InvoiceHeader

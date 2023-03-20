@@ -1,3 +1,6 @@
+from html import escape
+
+
 class Buyer:
 
     def __init__(self, name="", zip_code="", city="", address=""):

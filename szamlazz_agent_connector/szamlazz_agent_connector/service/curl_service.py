@@ -2,7 +2,6 @@ import logging
 import os
 import re
 from io import BytesIO
-from urllib.parse import urlencode
 
 import pycurl
 
@@ -86,7 +85,7 @@ class CurlService:
 
     def set_data_for_sending(self, entity, query_xml):
         file_upload = [(entity.filename, (
-            pycurl.FORM_CONTENTS, query_xml.encode('utf-8'),
+            pycurl.FORM_CONTENTS, query_xml,
             pycurl.FORM_FILENAME, entity.filename,
             pycurl.FORM_CONTENTTYPE, 'text/xml'
         ))]
@@ -110,7 +109,7 @@ class CurlService:
                             post_fields[f'attachfile{idx}'] = attachment
                             agent.write_log(f'{idx} document is attached: {item}', logging.DEBUG)
         if len(post_fields) > 0:
-            self._curl.setopt(pycurl.POSTFIELDS, urlencode(post_fields))
+            self._curl.setopt(pycurl.POSTFIELDS, post_fields)
         return post_fields
 
     def set_headers(self, agent):

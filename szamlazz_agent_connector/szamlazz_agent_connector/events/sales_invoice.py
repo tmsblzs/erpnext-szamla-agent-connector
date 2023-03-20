@@ -12,7 +12,7 @@ def on_submit(doc, event_name):
 
     request, response = document_generate(invoice)
 
-    _save_result(doc, request, response)
+    # _save_result(doc, request, response)
 
 
 def on_cancel(doc, event_name):
