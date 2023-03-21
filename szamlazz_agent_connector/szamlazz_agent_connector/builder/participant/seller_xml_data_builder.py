@@ -15,7 +15,7 @@ class SellerXmlDataBuilder:
     def build_xml_data(self, request: SzamlaAgentRequest, seller: Seller):
         self._validator.check_fields(seller)
 
-        request_name = request.xml_name
+        request_name = request.entity.xml_name
 
         if request_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             data = OrderedDict()

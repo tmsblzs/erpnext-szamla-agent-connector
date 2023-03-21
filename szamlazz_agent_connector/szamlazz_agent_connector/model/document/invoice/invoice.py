@@ -20,18 +20,6 @@ class Invoice(Document):
     def add_item(self, item: InvoiceItem):
         self.items.append(item)
 
-    @property
-    def xml_name(self):
-        return self._xml_name
-
-    @property
-    def xsd_dir(self):
-        return self._xsd_dir
-
-    @property
-    def is_attachments(self):
-        return len(self.attachments) > 0
-
     def __init__(self, seller, buyer, header_type=InvoiceConstant.INVOICE_TYPE_P_INVOICE):
         super().__init__()
         self.seller = seller

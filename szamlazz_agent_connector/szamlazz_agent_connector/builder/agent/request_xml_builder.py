@@ -68,7 +68,7 @@ class RequestXmlBuilder:
                 if isinstance(xml_data[key], (int, float)):
                     value = str(xml_data[key]).lower()
                 else:
-                    value = xml_data[key]
+                    value = escape(xml_data[key])
 
                 sub_element = ET.SubElement(xml_node, "{" + xml_ns + "}" + key)
                 sub_element.text = value

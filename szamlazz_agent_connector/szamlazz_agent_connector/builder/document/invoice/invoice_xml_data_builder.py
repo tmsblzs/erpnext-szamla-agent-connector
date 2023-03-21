@@ -6,7 +6,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.model.exception.szamla_ag
 
 class InvoiceXmlDataBuilder:
     def build_xml_data(self, request, invoice: Invoice):
-        xml_name = request.xml_name
+        xml_name = invoice.xml_name
         if xml_name == XmlSchema.XML_SCHEMA_CREATE_INVOICE:
             data = self._build_fields_data(request, invoice,
                                            ('beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek'))

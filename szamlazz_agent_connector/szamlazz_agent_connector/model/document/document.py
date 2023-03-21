@@ -19,6 +19,10 @@ class Document:
     def xsd_dir(self):
         return self._xsd_dir
 
+    @property
+    def is_attachments(self):
+        return len(self.attachments) > 0
+
     def __init__(self):
         self._file_name = None
         self._xml_name = None
@@ -27,8 +31,6 @@ class Document:
         self.header = None
         self.attachments = []
 
-    def is_attachements(self):
-        return len(self.attachments) > 0
 
     @staticmethod
     def get_default_currency():

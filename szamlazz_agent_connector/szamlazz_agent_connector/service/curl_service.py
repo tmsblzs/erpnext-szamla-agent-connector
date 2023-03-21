@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+from html import escape
 from io import BytesIO
 
 import pycurl
@@ -29,7 +30,7 @@ class CurlService:
 
         self.set_headers(agent)
         self.set_data_for_sending(entity, query_xml)
-        post_fields = self.set_attachments(agent, entity)
+        post_fields = self.set_attachments(agent, entity, {})
         self.set_cookie(agent)
 
         agent.write_log(f"CURL data send is starting: {post_fields}", logging.DEBUG)
@@ -86,13 +87,12 @@ class CurlService:
     def set_data_for_sending(self, entity, query_xml):
         file_upload = [(entity.filename, (
             pycurl.FORM_CONTENTS, query_xml,
-            pycurl.FORM_FILENAME, entity.filename,
-            pycurl.FORM_CONTENTTYPE, 'text/xml'
+            pycurl.FORM_FILENAME, "invoice.xml",
+            pycurl.FORM_CONTENTTYPE, 'multiform/form-data'
         ))]
         self._curl.setopt(pycurl.HTTPPOST, file_upload)
 
-    def set_attachments(self, agent, entity):
-        post_fields = {}
+    def set_attachments(self, agent, entity, post_fields):
         if entity.is_attachments:
             attachments = entity.attachments
             if attachments:
@@ -135,7 +135,7 @@ class CurlService:
         self._curl.setopt(pycurl.TIMEOUT, CurlService.REQUEST_TIMEOUT)
 
     def get_headers_from_response(self, header_line):
-        header_line = header_line.decode('UTF-8')
+        header_line = header_line.decode('iso-8859-1')
         if ':' not in header_line:
             return
 
