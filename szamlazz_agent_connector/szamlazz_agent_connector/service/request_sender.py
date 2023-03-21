@@ -19,5 +19,4 @@ class RequestSender:
         entity = request.entity
         query_str = QueryBuilder.build_query(xml_str, entity.filename)
         response = self._curl_service.make_call(agent, entity, query_str)
-        response_str = unescape(response['body'].decode('utf-8'))
         return response

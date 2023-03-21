@@ -86,9 +86,9 @@ class CurlService:
 
     def set_data_for_sending(self, entity, query_xml):
         file_upload = [(entity.filename, (
-            pycurl.FORM_CONTENTS, query_xml,
-            pycurl.FORM_FILENAME, "invoice.xml",
-            pycurl.FORM_CONTENTTYPE, 'multiform/form-data'
+            pycurl.FORM_BUFFERPTR, query_xml.encode('utf-8'),
+            pycurl.FORM_BUFFER, entity.filename,
+            pycurl.FORM_CONTENTTYPE, 'text/xml'
         ))]
         self._curl.setopt(pycurl.HTTPPOST, file_upload)
 
