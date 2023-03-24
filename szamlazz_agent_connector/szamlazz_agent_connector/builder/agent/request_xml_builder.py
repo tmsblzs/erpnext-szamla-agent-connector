@@ -4,7 +4,6 @@ from html import escape
 from io import BytesIO
 
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.build_xml_data import build_xml_data
-from szamlazz_agent_connector.szamlazz_agent_connector.builder.query.query_builder import QueryBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.model.exception.szamla_agent_exception import \
     SzamlaAgentException
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
@@ -18,6 +17,8 @@ class RequestXmlBuilder:
     XMLNS_XSI_NAME = 'xmlns:xsi'
     XMLNS_XSI_URL = 'http://www.w3.org/2001/XMLSchema-instance'
     XSI_SCHEMA_LOCATION_NAME = 'xsi:schemaLocation'
+
+    LF = "/n"
 
     def __init__(self):
         self._c_data = True
@@ -38,7 +39,7 @@ class RequestXmlBuilder:
             if not result:
                 raise SzamlaAgentException(
                     SzamlaAgentException.XML_NOT_VALID + f"in line {result[0].line}: {result[0].message}")
-            xml_str = xml_text.replace(bytearray(QueryBuilder.LF, 'utf-8'), bytearray('', 'utf-8'))
+            xml_str = xml_text.replace(bytearray(RequestXmlBuilder.LF, 'utf-8'), bytearray('', 'utf-8'))
 
             agent.write_log("Collection XML data has done.", logging.DEBUG)
             return xml_text

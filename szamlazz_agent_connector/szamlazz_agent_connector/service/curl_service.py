@@ -86,7 +86,7 @@ class CurlService:
 
     def set_data_for_sending(self, entity, query_xml):
         file_upload = [(entity.filename, (
-            pycurl.FORM_BUFFERPTR, query_xml.encode('utf-8'),
+            pycurl.FORM_BUFFERPTR, query_xml,
             pycurl.FORM_BUFFER, entity.filename,
             pycurl.FORM_CONTENTTYPE, 'text/xml'
         ))]
