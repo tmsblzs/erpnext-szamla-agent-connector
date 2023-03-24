@@ -7,8 +7,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.model.response.invoice_re
 
 class InvoiceParser:
     @staticmethod
-    def parse_data(data, response_type=ResponseConstant.RESULT_AS_TEXT):
-        response = InvoiceResponse()
+    def parse_data(data, invoice_response, response_type=ResponseConstant.RESULT_AS_TEXT):
         headers = data['headers']
         is_pdf = InvoiceParser.is_pdf_response(data)
         pdf_file = ''
@@ -19,27 +18,27 @@ class InvoiceParser:
             pdf_file = data['pdf']
 
         if headers:
-            response.headers = headers
+            invoice_response.headers = headers
 
             if 'szlahu_szamlaszam' in headers:
-                response.invoice_number = headers['szlahu_szamlaszam']
+                invoice_response.invoice_number = headers['szlahu_szamlaszam']
             if 'szlahu_vevoifiokurl' in headers:
-                response.user_account_url = headers['szlahu_vevoifiokurl']
+                invoice_response.user_account_url = headers['szlahu_vevoifiokurl']
             if 'szlahu_kintlevoseg' in headers:
-                response.asset_amount = headers['szlahu_kintlevoseg']
+                invoice_response.asset_amount = headers['szlahu_kintlevoseg']
             if 'szlahu_nettovegosszeg' in headers:
-                response.net_price = headers['szlahu_nettovegosszeg']
+                invoice_response.net_price = headers['szlahu_nettovegosszeg']
             if 'szlahu_bruttovegosszeg' in headers:
-                response.gross_amount = headers['szlahu_bruttovegosszeg']
+                invoice_response.gross_amount = headers['szlahu_bruttovegosszeg']
             if 'szlahu_error' in headers:
                 error = unquote(headers['szlahu_error'])
-                response.error_message = error
+                invoice_response.error_message = error
             if is_pdf and pdf_file:
-                response.pdf_data = pdf_file
-            if not response.is_error():
-                response.success = True
+                invoice_response.pdf_data = pdf_file
+            if not invoice_response.is_error():
+                invoice_response.success = True
 
-            return response
+            return invoice_response
 
     @staticmethod
     def is_pdf_response(result):

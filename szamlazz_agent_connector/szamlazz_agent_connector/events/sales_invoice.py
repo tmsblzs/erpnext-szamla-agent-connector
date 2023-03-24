@@ -5,14 +5,16 @@ from szamlazz_agent_connector.szamlazz_agent_connector.helper.document.reverse_i
     import ReverseInvoiceHelper
 from szamlazz_agent_connector.szamlazz_agent_connector.helper.file.xml_file_helper import XmlFileHelper
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document_generate import document_generate
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_response import SzamlaAgentResponse
 
 
 def on_submit(doc, event_name):
     invoice = InvoiceHelper.create_from_sales_invoice(doc)
 
     request, response = document_generate(invoice)
-
-    # _save_result(doc, request, response)
+    agent_response = SzamlaAgentResponse(request, response)
+    invoice_response = agent_response.handle_response()
+    _save_result(doc, request, invoice_response)
 
 
 def on_cancel(doc, event_name):
@@ -27,6 +29,6 @@ def _save_result(doc, request, result):
                                                                             result.get_pdf_file_name(False))
     pdf_file.attached_to_name = agent_invoice.name
     pdf_file.save()
-    XmlFileHelper.create_and_insert_from_agent_result(request, agent_invoice.name)
+    # XmlFileHelper.create_and_insert_from_agent_result(request, agent_invoice.name)
 
 

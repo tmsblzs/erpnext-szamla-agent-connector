@@ -11,5 +11,14 @@ class SzamlaAgentRequest:
         self.entity = entity
         self.c_data = True
 
+    def get_entity_header(self):
+        header = None
 
+        entity = self.entity
+
+        from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.invoice import Invoice
+        if entity and isinstance(entity, Invoice):
+            header = entity.header
+
+        return header
 

@@ -74,18 +74,6 @@ class SzamlaAgent:
     def generate_reverse_invoice(self, reverse_invoice):
         return self.generate_document('generateReverseInvoice', reverse_invoice)
 
-    def get_request_entity_header(self):
-        header = None
-
-        request = self.request
-        entity = request.entity
-
-        from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.invoice import Invoice
-        if entity and isinstance(entity, Invoice):
-            header = entity.header
-
-        return header
-
     def write_log(self, message, log_level=logging.DEBUG):
         if self.log_level < log_level:
             return False
