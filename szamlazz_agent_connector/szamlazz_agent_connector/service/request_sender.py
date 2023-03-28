@@ -6,11 +6,10 @@ from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent
 class RequestSender:
     def __init__(self):
         self.xml_file_path = ''
-        self._xml_builder = RequestXmlBuilder()
         self._curl_service = CurlService()
 
     def send(self, request: SzamlaAgentRequest):
-        xml_str = self._xml_builder.build_xml(request)
+        xml_str = RequestXmlBuilder.build(request)
         agent = request.agent
         entity = request.entity
         response = self._curl_service.make_call(agent, entity, xml_str)
