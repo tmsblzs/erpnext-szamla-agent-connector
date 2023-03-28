@@ -1,6 +1,3 @@
-from html import unescape
-from urllib.parse import unquote
-
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.agent.request_xml_builder import RequestXmlBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.service.curl_service import CurlService
 from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_request import SzamlaAgentRequest
