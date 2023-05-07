@@ -14,7 +14,7 @@ class RequestXmlBuilder:
     # Számla Agent XML séma alapértelmezett URL
     # (az XML generálásához használjuk, ne változtasd meg)
 
-    LF = "/n"
+    LF = "\n"
 
     @staticmethod
     def build(request: SzamlaAgentRequest):

@@ -9,7 +9,6 @@ class ReverseInvoiceHelper:
     @staticmethod
     def create_from_sales_invoice(sales_invoice):
         agent_invoice = AgentInvoiceHelper.get_by_own_invoice_number(sales_invoice.name)
-        invoice = AgentInvoiceHelper.get_by_name(agent_invoice[0])
         reverse_invoice = ReverseInvoice()
-        ReverseInvoiceHeaderHelper.fill_from_sales_invoice(reverse_invoice.header, invoice)
+        ReverseInvoiceHeaderHelper.fill_from_sales_invoice(reverse_invoice.header, agent_invoice)
         return reverse_invoice

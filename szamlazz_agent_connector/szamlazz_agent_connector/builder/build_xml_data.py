@@ -2,6 +2,10 @@ from functools import singledispatch
 
 from numpy import iterable
 
+from szamlazz_agent_connector.szamlazz_agent_connector.builder.document.invoice.reverse_invoice_xml_data_builder import \
+    ReverseInvoiceXmlDataBuilder
+from szamlazz_agent_connector.szamlazz_agent_connector.builder.header.reverse_invoice_header_xml_data_builder import \
+    ReverseInvoiceHeaderXmlDataBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.participant.buyer_xml_data_builder import BuyerXmlDataBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.document.invoice.invoice_xml_data_builder import \
     InvoiceXmlDataBuilder
@@ -14,6 +18,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.builder.item.invoice_item
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.participant.seller_xml_data_builder import SellerXmlDataBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.agent.setting_xml_data_builder import SettingXmlDataBuilder
 from szamlazz_agent_connector.szamlazz_agent_connector.builder.participant.taxpayer_xml_data_builder import TaxpayerXmlDataBuilder
+from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.reverse_invoice import ReverseInvoice
 from szamlazz_agent_connector.szamlazz_agent_connector.model.header.invoice_header import InvoiceHeader
 from szamlazz_agent_connector.szamlazz_agent_connector.model.participant.buyer import Buyer
 from szamlazz_agent_connector.szamlazz_agent_connector.model.document.invoice.invoice import Invoice
@@ -42,8 +47,13 @@ def _(model: Invoice, request):
 
 
 @build_xml_data.register
+def _(model: ReverseInvoice, request):
+    return ReverseInvoiceXmlDataBuilder().build_xml_data(request, model)
+
+
+@build_xml_data.register
 def _(model: ReverseInvoiceHeader, request):
-    return InvoiceHeaderXmlDataBuilder().build_xml_data(request, model)
+    return ReverseInvoiceHeaderXmlDataBuilder().build_xml_data(request, model)
 
 
 @build_xml_data.register

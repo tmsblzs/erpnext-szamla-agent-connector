@@ -10,7 +10,7 @@ from szamlazz_agent_connector.szamlazz_agent_connector.validator.header.reverse_
     ReverseInvoiceHeaderValidator
 
 
-class ReverseInvoiceXmlDataBuilder:
+class ReverseInvoiceHeaderXmlDataBuilder:
     def __init__(self):
         self._validator = ReverseInvoiceHeaderValidator()
 

@@ -23,7 +23,10 @@ class AgentInvoiceHelper:
 
     @staticmethod
     def get_by_own_invoice_number(own_invoice_number):
-        agent_invoice = frappe.get_all('SzamlazzAgentConnectorInvoice', filters={'own_invoice_number': own_invoice_number})
+        agent_invoices = frappe.get_all('SzamlazzAgentConnectorInvoice', filters={'own_invoice_number': own_invoice_number})
+        if not agent_invoices:
+            raise TypeError("Szamlazz Agent Invoice not found!")
+        agent_invoice = frappe.get_doc('SzamlazzAgentConnectorInvoice', agent_invoices[0].name)
         if not agent_invoice:
             raise TypeError("Szamlazz Agent Invoice not found!")
         return agent_invoice

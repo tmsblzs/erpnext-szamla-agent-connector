@@ -13,4 +13,4 @@ class ReverseInvoice(Invoice):
         self._xsd_dir = 'agentst'
 
         if invoice_type:
-            self._header = ReverseInvoiceHeader(invoice_type)
+            self.header = ReverseInvoiceHeader(invoice_type)
