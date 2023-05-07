@@ -1,18 +1,25 @@
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.agent_invoice_helper import AgentInvoiceHelper
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.invoice_helper import InvoiceHelper
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.pdf_file_helper import PdfFileHelper
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.reverse_invoice_helper import ReverseInvoiceHelper
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.szamla_agent_api_helper import SzamlaAgentApiHelper
-from szamlazz_agent_connector.szamlazz_agent_connector.helper.xml_file_helper import XmlFileHelper
+from szamlazz_agent_connector.szamlazz_agent_connector.helper.agent.agent_invoice_helper import AgentInvoiceHelper
+from szamlazz_agent_connector.szamlazz_agent_connector.helper.document.invoice_helper import InvoiceHelper
+from szamlazz_agent_connector.szamlazz_agent_connector.helper.file.pdf_file_helper import PdfFileHelper
+from szamlazz_agent_connector.szamlazz_agent_connector.helper.document.reverse_invoice_helper \
+    import ReverseInvoiceHelper
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.document_generate import document_generate
+from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.szamla_agent_response import SzamlaAgentResponse
 
 
 def on_submit(doc, event_name):
     invoice = InvoiceHelper.create_from_sales_invoice(doc)
 
-    agent = SzamlaAgentApiHelper.create()
-    agent.generate_invoice(invoice)
+    request, response = document_generate(invoice)
+    agent_response = SzamlaAgentResponse(request, response)
+    invoice_response = agent_response.handle_response()
+    _save_result(doc, request, invoice_response)
 
-    _save_result(doc, agent.request, agent.response)
+
+def on_cancel(doc, event_name):
+    reverse_invoice = ReverseInvoiceHelper.create_from_sales_invoice(doc)
+
+    response = document_generate(reverse_invoice)
 
 
 def _save_result(doc, request, result):
@@ -21,11 +28,6 @@ def _save_result(doc, request, result):
                                                                             result.get_pdf_file_name(False))
     pdf_file.attached_to_name = agent_invoice.name
     pdf_file.save()
-    XmlFileHelper.create_and_insert_from_agent_result(request, agent_invoice.name)
+    # XmlFileHelper.create_and_insert_from_agent_result(request, agent_invoice.name)
 
 
-def on_cancel(doc, event_name):
-    reverse_invoice = ReverseInvoiceHelper.create_from_sales_invoice(doc)
-
-    agent = SzamlaAgentApiHelper.create()
-    agent.generate_reverse_invoice(reverse_invoice)

@@ -1,5 +1,5 @@
 import frappe
-from szamlazz_agent_connector.szamlazz_agent_connector.szamla_agent.constant.document_constant import DocumentConstant
+from szamlazz_agent_connector.szamlazz_agent_connector.model.constant.document_constant import DocumentConstant
 
 
 def after_install():
